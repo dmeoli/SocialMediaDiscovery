@@ -25,8 +25,8 @@ public class SocialMediaDiscoveryApplication implements CommandLineRunner {
 
     private final RedditDatabase redditDatabase;
     // private final TwitterDatabase twitterDatabase;
-    private final SocialMediaGraph socialMediaGraph;
-    private final GraphMining graphMining;
+    // private final SocialMediaGraph socialMediaGraph;
+    // private final GraphMining graphMining;
 
     static {
         SocialMediaDiscoveryConfiguration.getInstance().setDataset(Dataset.REDDIT);
@@ -42,11 +42,11 @@ public class SocialMediaDiscoveryApplication implements CommandLineRunner {
     }
 
     @Autowired
-    public SocialMediaDiscoveryApplication(RedditDatabase redditDatabase, SocialMediaGraph socialMediaGraph,
-                                           GraphMining graphMining) {
+    public SocialMediaDiscoveryApplication(RedditDatabase redditDatabase) {
+                                           // SocialMediaGraph socialMediaGraph, GraphMining graphMining) {
         this.redditDatabase = redditDatabase;
-        this.socialMediaGraph = socialMediaGraph;
-        this.graphMining = graphMining;
+        // this.socialMediaGraph = socialMediaGraph;
+        // this.graphMining = graphMining;
     }
 
     /* @Autowired
@@ -60,8 +60,8 @@ public class SocialMediaDiscoveryApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         redditDatabase.createSocialMediaDatabase();
-        socialMediaGraph.createSocialMediaGraph(redditDatabase);
-        graphMining.executeTemporalSocialMediaAnalysis();
+        // socialMediaGraph.createSocialMediaGraph(redditDatabase);
+        // graphMining.executeTemporalSocialMediaAnalysis();
     }
 
     public static void main(String[] args) {

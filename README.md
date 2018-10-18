@@ -9,7 +9,7 @@ under the supervision of dr. [Corrado Loglisci](http://www.di.uniba.it/~loglisci
 
 By default, requirement for compilation are:
 
- - JDK 8+
+ - JDK 10+
  - Maven
 
 ## Built with Maven
