@@ -40,12 +40,8 @@ public abstract class SocialMediaDatabase extends MongoDAO {
                 .map(GridFSFile::getFilename).collect(Collectors.toSet());
     }
 
-    boolean isPresent(String discussionID) {
-        return Objects.nonNull(socialMediaCollection.findOne(Query.query(GridFsCriteria.whereFilename().is(discussionID))));
-    }
-
     void addDiscussion(Discussion discussion) {
-        if (!isPresent(discussion.getID())) {
+        if (Objects.isNull(socialMediaCollection.findOne(Query.query(GridFsCriteria.whereFilename().is(discussion.getID()))))) {
             ContentBasedFeatureExtraction.extractContentBasedFeatures(discussion);
             socialMediaCollection.store(
                     new ByteArrayInputStream(
