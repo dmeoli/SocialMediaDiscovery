@@ -97,10 +97,10 @@ public class RedditDatabase extends SocialMediaDatabase {
         distinctSubreddits.parallelStream().filter(subredditID -> !isPresent(subredditID)).filter(subredditID ->
                 getFilteredSubmissions(subredditID).size() >= submissionsCollectionCount / distinctSubreddits.size())
                 .forEach(subredditID -> {
-            LOGGER.info("Adding Submissions of the Subreddit {} to the Reddit dataset", subredditID);
-            getSubmissions(subredditID).parallelStream().forEach(this::addDiscussion);
-            LOGGER.info("The Submissions of the Subreddit {} have been added to the Reddit dataset", subredditID);
-        });
+                    LOGGER.info("Adding Submissions of the Subreddit {} to the Reddit dataset", subredditID);
+                    getSubmissions(subredditID).parallelStream().forEach(this::addDiscussion);
+                    LOGGER.info("The Submissions of the Subreddit {} have been added to the Reddit dataset", subredditID);
+                });
         LOGGER.info("The creation of the Reddit dataset of {}/{} is finished", MONTH, YEAR);
     }
 

@@ -24,12 +24,12 @@ public class Emotion extends DiscreteContentBasedFeatureExtraction {
     public Set<String> extractFeature(Post postX, Post postY) {
         Set<String> emotionsPostX = new HashSet<>();
         Set<String> emotionsPostY = new HashSet<>();
-        postX.getBodyPOSTags().parallelStream().filter(wordLemmaTagX ->
+        postX.getBodyPOSTags().stream().filter(wordLemmaTagX ->
                 Objects.nonNull(POSTag.getPOS(wordLemmaTagX.tag()))).map(wordLemmaTagX ->
                 wnAffect.getEmotion(wordLemmaTagX.lemma(), Objects.requireNonNull(POSTag.getPOS(wordLemmaTagX.tag()))))
                 .filter(Objects::nonNull).forEach(emotion ->
                 emotionsPostX.add(wnAffect.getParent(emotion, EMOTION_PARENT_LEVEL)));
-        postY.getBodyPOSTags().parallelStream().filter(wordLemmaTagY ->
+        postY.getBodyPOSTags().stream().filter(wordLemmaTagY ->
                 Objects.nonNull(POSTag.getPOS(wordLemmaTagY.tag()))).map(wordLemmaTagY ->
                 wnAffect.getEmotion(wordLemmaTagY.lemma(), Objects.requireNonNull(POSTag.getPOS(wordLemmaTagY.tag()))))
                 .filter(Objects::nonNull).forEach(emotion ->

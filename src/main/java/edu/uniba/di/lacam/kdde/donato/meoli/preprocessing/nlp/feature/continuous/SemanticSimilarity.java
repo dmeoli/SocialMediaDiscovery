@@ -32,8 +32,8 @@ public class SemanticSimilarity extends ContinuousContentBasedFeatureExtraction 
     public double extractFeature(Post postX, Post postY) {
         AtomicReference<Double> weightedSimilarity = new AtomicReference<>(0.0D);
         AtomicReference<Double> weights = new AtomicReference<>(0.0D);
-        postX.getBodyPOSTags().parallelStream().forEach(wordLemmaTagX ->
-                postY.getBodyPOSTags().parallelStream().forEach(wordLemmaTagY -> {
+        postX.getBodyPOSTags().forEach(wordLemmaTagX ->
+                postY.getBodyPOSTags().forEach(wordLemmaTagY -> {
                     double weight = (tfidfCalculator.getTFIDF(postX.getID(), wordLemmaTagX.lemma()) +
                             tfidfCalculator.getTFIDF(postY.getID(), wordLemmaTagY.lemma())) / 2;
                     if (POSTag.isNoun(wordLemmaTagX.tag()) && POSTag.isNoun(wordLemmaTagY.tag()))
