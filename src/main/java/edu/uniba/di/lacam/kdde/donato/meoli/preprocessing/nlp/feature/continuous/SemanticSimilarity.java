@@ -1,5 +1,6 @@
 package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous;
 
+import edu.stanford.nlp.ling.WordLemmaTag;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Post;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.POSTag;
 import edu.uniba.di.lacam.kdde.lexical_db.MITWordNet;
@@ -32,24 +33,25 @@ public class SemanticSimilarity extends ContinuousContentBasedFeatureExtraction 
     public double extractFeature(Post postX, Post postY) {
         AtomicReference<Double> weightedSimilarity = new AtomicReference<>(0.0D);
         AtomicReference<Double> weights = new AtomicReference<>(0.0D);
-        postX.getBodyPOSTags().forEach(wordLemmaTagX ->
-                postY.getBodyPOSTags().forEach(wordLemmaTagY -> {
-                    double weight = (tfidfCalculator.getTFIDF(postX.getID(), wordLemmaTagX.lemma()) +
-                            tfidfCalculator.getTFIDF(postY.getID(), wordLemmaTagY.lemma())) / 2;
+        for (WordLemmaTag wordLemmaTagX : postX.getBodyPOSTags()) {
+            for (WordLemmaTag wordLemmaTagY : postY.getBodyPOSTags()) {
+                double weight = (tfidfCalculator.getTFIDF(postX.getID(), wordLemmaTagX.lemma()) +
+                        tfidfCalculator.getTFIDF(postY.getID(), wordLemmaTagY.lemma())) / 2;
+                try {
                     if (POSTag.isNoun(wordLemmaTagX.tag()) && POSTag.isNoun(wordLemmaTagY.tag()))
                         weightedSimilarity.updateAndGet(v -> v + lin.calcRelatednessOfWords(
-                                wordLemmaTagX.lemma().replaceAll(String.valueOf(SEPARATOR), "")
-                                        + SEPARATOR + POS.NOUN,
-                                wordLemmaTagY.lemma().replaceAll(String.valueOf(SEPARATOR), "")
-                                        + SEPARATOR + POS.NOUN) * weight);
+                                wordLemmaTagX.lemma() + SEPARATOR + POS.NOUN,
+                                wordLemmaTagY.lemma() + SEPARATOR + POS.NOUN) * weight);
                     else if (POSTag.isVerb(wordLemmaTagX.tag()) && POSTag.isVerb(wordLemmaTagY.tag()))
                         weightedSimilarity.updateAndGet(v -> (v + lin.calcRelatednessOfWords(
-                                wordLemmaTagX.lemma().replaceAll(String.valueOf(SEPARATOR), "")
-                                        + SEPARATOR + POS.VERB,
-                                wordLemmaTagY.lemma().replaceAll(String.valueOf(SEPARATOR), "")
-                                        + SEPARATOR + POS.VERB) * weight));
-                    weights.updateAndGet(v -> v + weight);
-                }));
+                                wordLemmaTagX.lemma() + SEPARATOR + POS.VERB,
+                                wordLemmaTagY.lemma() + SEPARATOR + POS.VERB) * weight));
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+                weights.updateAndGet(v -> v + weight);
+            }
+        }
         double similarity = weightedSimilarity.get() / weights.get();
         if (Double.compare(similarity, Double.NaN) == 0) return MIN_SCORE;
         checkArgument(MIN_SCORE <= similarity && similarity <= MAX_SCORE);
