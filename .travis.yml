@@ -1,0 +1,5 @@
+language: java
+
+jdk: oraclejdk10
+
+script: mvn install
