@@ -3,7 +3,6 @@ package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuou
 import edu.stanford.nlp.ling.WordLemmaTag;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Post;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.POSTag;
-import edu.uniba.di.lacam.kdde.lexical_db.MITWordNet;
 import edu.uniba.di.lacam.kdde.lexical_db.item.POS;
 import edu.uniba.di.lacam.kdde.ws4j.RelatednessCalculator;
 import edu.uniba.di.lacam.kdde.ws4j.similarity.Lin;
@@ -22,7 +21,7 @@ public class SemanticSimilarity extends ContinuousContentBasedFeatureExtraction 
         WS4JConfiguration.getInstance().setMFS(true);
         WS4JConfiguration.getInstance().setCache(true);
         WS4JConfiguration.getInstance().setMemoryDB(true);
-        lin = new Lin(MITWordNet.getInstance());
+        lin = new Lin(db);
     }
 
     public SemanticSimilarity(TFIDFSimilarity tfidfCalculator) {

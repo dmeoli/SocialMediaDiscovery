@@ -7,6 +7,8 @@ import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.discrete.DiscreteContentBasedFeatureExtraction;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.discrete.Emotion;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.discrete.*;
+import edu.uniba.di.lacam.kdde.lexical_db.ILexicalDatabase;
+import edu.uniba.di.lacam.kdde.lexical_db.MITWordNet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,12 @@ import java.util.Set;
 import static edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous.ContinuousContentBasedFeatureExtraction.MIN_SCORE;
 
 public abstract class ContentBasedFeatureExtraction {
+
+    protected static ILexicalDatabase db;
+
+    static {
+        db = new MITWordNet();
+    }
 
     private static List<Post> linearize(Post post) {
         List<Post> posts = new ArrayList<>();

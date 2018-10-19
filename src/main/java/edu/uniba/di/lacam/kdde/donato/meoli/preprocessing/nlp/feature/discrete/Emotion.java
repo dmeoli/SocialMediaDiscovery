@@ -3,11 +3,12 @@ package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.discrete;
 import edu.uniba.di.lacam.kdde.WNAffect;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Post;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.POSTag;
+import edu.uniba.di.lacam.kdde.lexical_db.MITWordNet;
 import edu.uniba.di.lacam.kdde.util.WNAffectConfiguration;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Emotion extends DiscreteContentBasedFeatureExtraction {
 
@@ -18,25 +19,21 @@ public class Emotion extends DiscreteContentBasedFeatureExtraction {
     static {
         WNAffectConfiguration.getInstance().setCache(true);
         WNAffectConfiguration.getInstance().setMemoryDB(true);
-        wnAffect = WNAffect.getInstance();
+        wnAffect = new WNAffect(((MITWordNet) db).getDictionary());
     }
 
     @Override
     public Set<String> extractFeature(Post postX, Post postY) {
-        Set<String> emotionsPostX = new HashSet<>();
-        Set<String> emotionsPostY = new HashSet<>();
-        postX.getBodyPOSTags().parallelStream().filter(wordLemmaTagX ->
+        Set<String> emotionsPostX = postX.getBodyPOSTags().parallelStream().filter(wordLemmaTagX ->
                 Objects.nonNull(POSTag.getPOS(wordLemmaTagX.tag()))).map(wordLemmaTagX ->
                 wnAffect.getEmotion(wordLemmaTagX.lemma(), Objects.requireNonNull(POSTag.getPOS(wordLemmaTagX.tag()))))
-                .filter(Objects::nonNull).forEach(emotion ->
-                emotionsPostX.add(wnAffect.getParent(emotion, EMOTION_PARENT_LEVEL)));
-        postY.getBodyPOSTags().parallelStream().filter(wordLemmaTagY ->
+                .map(emotion -> wnAffect.getParent(emotion, EMOTION_PARENT_LEVEL)).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Set<String> emotionsPostY = postY.getBodyPOSTags().parallelStream().filter(wordLemmaTagY ->
                 Objects.nonNull(POSTag.getPOS(wordLemmaTagY.tag()))).map(wordLemmaTagY ->
                 wnAffect.getEmotion(wordLemmaTagY.lemma(), Objects.requireNonNull(POSTag.getPOS(wordLemmaTagY.tag()))))
-                .filter(Objects::nonNull).forEach(emotion ->
-                emotionsPostY.add(wnAffect.getParent(emotion, EMOTION_PARENT_LEVEL)));
-        emotionsPostX.removeIf(Objects::isNull);
-        emotionsPostY.removeIf(Objects::isNull);
+                .map(emotion -> wnAffect.getParent(emotion, EMOTION_PARENT_LEVEL)).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         emotionsPostX.retainAll(emotionsPostY);
         return emotionsPostX;
     }
