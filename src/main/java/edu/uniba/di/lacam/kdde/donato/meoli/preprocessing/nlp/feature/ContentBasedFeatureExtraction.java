@@ -13,6 +13,7 @@ import edu.uniba.di.lacam.kdde.lexical_db.MITWordNet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous.ContinuousContentBasedFeatureExtraction.MIN_SCORE;
 
@@ -58,8 +59,9 @@ public abstract class ContentBasedFeatureExtraction {
                             new DiscreteContentBasedLink(authorFrom, authorTo, postX.getUTC(), lexicalScore));
                     if (semanticScore != MIN_SCORE) discussion.getSemanticSimilarities().add(
                             new DiscreteContentBasedLink(authorFrom, authorTo, postX.getUTC(), semanticScore));
-                    emotions.parallelStream().forEach(label -> discussion.getEmotions().add(
-                            new ContinuousContentBasedLink(authorFrom, authorTo, postX.getUTC(), label)));
+                    discussion.getEmotions().addAll(emotions.parallelStream().map(label ->
+                            new ContinuousContentBasedLink(authorFrom, authorTo, postX.getUTC(), label))
+                            .collect(Collectors.toList()));
                 }
             }
         }

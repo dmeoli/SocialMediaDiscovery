@@ -5,7 +5,6 @@ import edu.stanford.nlp.ling.WordLemmaTag;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Post;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,13 +20,13 @@ public class TFIDFSimilarity {
         this.posts = posts;
         DFs = new ConcurrentHashMap<>();
         TFs = new ConcurrentHashMap<>();
-        posts.parallelStream().forEach(post -> post.getBodyPOSTags().parallelStream().forEach(wordLemmaTag -> {
+        posts.parallelStream().forEach(post -> post.getBodyPOSTags().forEach(wordLemmaTag -> {
             if (!DFs.containsKey(wordLemmaTag.lemma()))
                 DFs.put(wordLemmaTag.lemma(), calculateDF(wordLemmaTag.lemma()));
             if (TFs.containsKey(post.getID())) {
                 if (!TFs.get(post.getID()).containsKey(wordLemmaTag.lemma()))
                     TFs.get(post.getID()).put(wordLemmaTag.lemma(), calculateTF(post.getBodyPOSTags(), wordLemmaTag.lemma()));
-            } else TFs.put(post.getID(), new HashMap<>(
+            } else TFs.put(post.getID(), new ConcurrentHashMap<>(
                     Collections.singletonMap(wordLemmaTag.lemma(), calculateTF(post.getBodyPOSTags(), wordLemmaTag.lemma()))));
         }));
     }

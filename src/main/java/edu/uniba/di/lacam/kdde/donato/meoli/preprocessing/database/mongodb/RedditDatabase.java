@@ -19,7 +19,6 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
@@ -60,7 +59,8 @@ public class RedditDatabase extends SocialMediaDatabase {
 
     private static final String REDDIT_MENTION_PREFIX = "/u/";
 
-    public RedditDatabase() { }
+    public RedditDatabase() {
+    }
 
     @Autowired
     public RedditDatabase(GridFsTemplate socialMediaCollection) {
@@ -134,18 +134,17 @@ public class RedditDatabase extends SocialMediaDatabase {
         Set<String> distinctSubredditIDs = new HashSet<>();
         Document numberOfDistinctSubreddits = getCollection(STATISTICS_COLLECTION).find(
                 exists(NUMBER_OF_DISTINCT_SUBREDDITS_FIELD_NAME)).first();
-        if (numberOfDistinctSubreddits != null &&
+        if (Objects.nonNull(numberOfDistinctSubreddits) &&
                 numberOfDistinctSubreddits.getInteger(NUMBER_OF_DISTINCT_SUBREDDITS_FIELD_NAME) ==
                         getCollection(SUBREDDITS_COLLECTION).count())
-            StreamSupport.stream(getCollection(SUBREDDITS_COLLECTION).find().spliterator(), true)
-                    .forEach((Consumer<? super Document>) subreddit ->
-                            distinctSubredditIDs.add(subreddit.getString(AGGREGATE_ID_FIELD_NAME)));
+            getCollection(SUBREDDITS_COLLECTION).find().forEach((Consumer<? super Document>) subreddit ->
+                    distinctSubredditIDs.add(subreddit.getString(AGGREGATE_ID_FIELD_NAME)));
         else {
-            StreamSupport.stream(getCollection(SUBMISSIONS_COLLECTION).aggregate(Arrays.asList(
+            getCollection(SUBMISSIONS_COLLECTION).aggregate(Arrays.asList(
                     group("$" + SUBREDDIT_ID_FIELD_NAME),
                     out(SUBREDDITS_COLLECTION + YEAR + SEPARATOR + MONTH))).allowDiskUse(true)
-                    .spliterator(), true).forEach((Consumer<? super Document>) subreddit ->
-                    distinctSubredditIDs.add(subreddit.getString(AGGREGATE_ID_FIELD_NAME)));
+                    .forEach((Consumer<? super Document>) subreddit ->
+                            distinctSubredditIDs.add(subreddit.getString(AGGREGATE_ID_FIELD_NAME)));
             getCollection(STATISTICS_COLLECTION).insertOne(
                     new Document(NUMBER_OF_DISTINCT_SUBREDDITS_FIELD_NAME, distinctSubredditIDs.size()));
         }
@@ -176,10 +175,9 @@ public class RedditDatabase extends SocialMediaDatabase {
         AtomicLong submissionsSelftextsLength = new AtomicLong(0L);
         Document submissionsBodyLengthDoc = getCollection(STATISTICS_COLLECTION).find(
                 exists(SUBMISSIONS_SELFTEXTS_LENGTH_FIELD_NAME)).first();
-        if (submissionsBodyLengthDoc == null) {
-            StreamSupport.stream(getCollection(SUBMISSIONS_COLLECTION).find().spliterator(), true)
-                    .forEach((Consumer<? super Document>) submission -> submissionsSelftextsLength.addAndGet(
-                            submission.getDouble(SUBMISSION_SELFTEXT_LENGTH_FIELD_NAME).longValue()));
+        if (Objects.isNull(submissionsBodyLengthDoc)) {
+            getCollection(SUBMISSIONS_COLLECTION).find().forEach((Consumer<? super Document>) submission ->
+                    submissionsSelftextsLength.addAndGet(submission.getDouble(SUBMISSION_SELFTEXT_LENGTH_FIELD_NAME).longValue()));
             getCollection(STATISTICS_COLLECTION).insertOne(
                     new Document(SUBMISSIONS_SELFTEXTS_LENGTH_FIELD_NAME, submissionsSelftextsLength));
         } else
@@ -208,10 +206,9 @@ public class RedditDatabase extends SocialMediaDatabase {
         AtomicLong commentsBodiesLength = new AtomicLong(0L);
         Document commentsBodyLengthDoc = getCollection(STATISTICS_COLLECTION).find(
                 exists(COMMENTS_BODIES_LENGTH_FIELD_NAME)).first();
-        if (commentsBodyLengthDoc == null) {
-            StreamSupport.stream(getCollection(COMMENTS_COLLECTION).find().spliterator(), true)
-                    .forEach((Consumer<? super Document>) comment -> commentsBodiesLength.addAndGet(
-                            comment.getDouble(COMMENT_BODY_LENGTH_FIELD_NAME).longValue()));
+        if (Objects.isNull(commentsBodyLengthDoc)) {
+            getCollection(COMMENTS_COLLECTION).find().forEach((Consumer<? super Document>) comment ->
+                    commentsBodiesLength.addAndGet(comment.getDouble(COMMENT_BODY_LENGTH_FIELD_NAME).longValue()));
             getCollection(STATISTICS_COLLECTION).insertOne(
                     new Document(COMMENTS_BODIES_LENGTH_FIELD_NAME, commentsBodiesLength));
         } else commentsBodiesLength.set(commentsBodyLengthDoc.getLong(COMMENTS_BODIES_LENGTH_FIELD_NAME));
@@ -222,27 +219,28 @@ public class RedditDatabase extends SocialMediaDatabase {
         int numberOfDistinctAuthors;
         Document numberOfDistinctAuthorsDoc = getCollection(STATISTICS_COLLECTION).find(
                 exists(NUMBER_OF_DISTINCT_AUTHORS_FIELD_NAME)).first();
-        if (numberOfDistinctAuthorsDoc != null &&
+        if (Objects.nonNull(numberOfDistinctAuthorsDoc) &&
                 numberOfDistinctAuthorsDoc.getInteger(NUMBER_OF_DISTINCT_AUTHORS_FIELD_NAME) ==
                         getCollection(AUTHORS_COLLECTION).count())
             numberOfDistinctAuthors = numberOfDistinctAuthorsDoc.getInteger(NUMBER_OF_DISTINCT_AUTHORS_FIELD_NAME);
         else {
             Set<String> authors = new HashSet<>();
-            StreamSupport.stream(getCollection(SUBMISSIONS_COLLECTION).aggregate(Collections.singletonList(
-                    group("$" + AUTHOR_FIELD_NAME))).allowDiskUse(true).spliterator(), true)
+            getCollection(SUBMISSIONS_COLLECTION).aggregate(Collections.singletonList(
+                    group("$" + AUTHOR_FIELD_NAME))).allowDiskUse(true)
                     .forEach((Consumer<? super Document>) authorSubmission ->
                             authors.add(authorSubmission.getString(AGGREGATE_ID_FIELD_NAME)));
-            StreamSupport.stream(getCollection(COMMENTS_COLLECTION).aggregate(Collections.singletonList(
-                    group("$" + AUTHOR_FIELD_NAME))).allowDiskUse(true).spliterator(), true)
+            getCollection(COMMENTS_COLLECTION).aggregate(Collections.singletonList(
+                    group("$" + AUTHOR_FIELD_NAME))).allowDiskUse(true)
                     .forEach((Consumer<? super Document>) authorComment ->
                             authors.add(authorComment.getString(AGGREGATE_ID_FIELD_NAME)));
             numberOfDistinctAuthors = authors.size();
             getCollection(STATISTICS_COLLECTION).insertOne(
                     new Document(NUMBER_OF_DISTINCT_AUTHORS_FIELD_NAME, numberOfDistinctAuthors));
-            authors.parallelStream().forEach(author -> getCollection(AUTHORS_COLLECTION).insertOne(
+            getCollection(AUTHORS_COLLECTION).insertMany(authors.parallelStream().map(author ->
                     new Document(AUTHOR_FIELD_NAME, author).append(COUNT_AUTHOR_FIELD_NAME,
                             getCollection(SUBMISSION_SELFTEXT_LENGTH_FIELD_NAME).count(eq(AUTHOR_FIELD_NAME, author)) +
-                                    getCollection(COMMENTS_COLLECTION).count(eq(AUTHOR_FIELD_NAME, author)))));
+                                    getCollection(COMMENTS_COLLECTION).count(eq(AUTHOR_FIELD_NAME, author))))
+                    .collect(Collectors.toList()));
             getCollection(AUTHORS_COLLECTION).createIndex(
                     new Document(AUTHOR_FIELD_NAME, 1), new IndexOptions().unique(true));
         }
