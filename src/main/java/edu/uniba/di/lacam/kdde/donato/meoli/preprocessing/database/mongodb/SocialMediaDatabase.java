@@ -2,6 +2,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
+import com.mongodb.client.MongoIterable;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import edu.uniba.di.lacam.kdde.donato.meoli.database.mongodb.MongoDAO;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Discussion;
@@ -17,9 +18,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Component
 public abstract class SocialMediaDatabase extends MongoDAO {
@@ -35,9 +33,8 @@ public abstract class SocialMediaDatabase extends MongoDAO {
         this.socialMediaCollection = socialMediaCollection;
     }
 
-    public Set<String> getDiscussionIDs() {
-        return StreamSupport.stream(socialMediaCollection.find(new Query()).spliterator(), true)
-                .map(GridFSFile::getFilename).collect(Collectors.toSet());
+    public MongoIterable<String> getDiscussionIDs() {
+        return socialMediaCollection.find(new Query()).map(GridFSFile::getFilename);
     }
 
     void addDiscussion(Discussion discussion) {

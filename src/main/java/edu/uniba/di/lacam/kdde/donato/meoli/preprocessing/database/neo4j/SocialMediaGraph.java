@@ -1,5 +1,7 @@
 package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j;
 
+import com.mongodb.Block;
+import com.mongodb.client.MongoIterable;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.SocialMediaDatabase;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Discussion;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
@@ -58,8 +60,8 @@ public class SocialMediaGraph {
 
     public void createSocialMediaGraph(SocialMediaDatabase socialMediaDB) {
         LOGGER.info("Please wait until creating {} graph of {}/{} is finished", DATASET, MONTH, YEAR);
-        Set<String> discussionIDs = socialMediaDB.getDiscussionIDs();
-        discussionIDs.forEach(discussionID -> {
+        MongoIterable<String> discussionIDs = socialMediaDB.getDiscussionIDs();
+        discussionIDs.forEach((Block<? super String>) discussionID -> {
             Discussion discussion = socialMediaDB.getDiscussion(discussionID);
             linkServices.forEach(linkService -> linkService.addLinks(discussion));
             LOGGER.info("Discussion {} added in the {} graph of {}/{}", discussionID, DATASET, MONTH, YEAR);

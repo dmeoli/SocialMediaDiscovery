@@ -4,6 +4,7 @@ import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.WordLemmaTag;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.POSTag;
 
 import java.util.List;
 import java.util.Properties;
@@ -30,7 +31,9 @@ public class StanfordNLPAnalyzer {
         Annotation document = new Annotation(text);
         pipeline.annotate(document);
         return (document.get(CoreAnnotations.SentencesAnnotation.class).parallelStream().flatMap(sentence ->
-                sentence.get(CoreAnnotations.TokensAnnotation.class).parallelStream())).map(token ->
+                sentence.get(CoreAnnotations.TokensAnnotation.class).parallelStream())).filter(token ->
+                POSTag.isNoun(token.tag()) || POSTag.isVerb(token.tag()) || POSTag.isAdjective(token.tag()) ||
+                        POSTag.isAdverb(token.tag())).map(token ->
                 new WordLemmaTag(token.word(), token.lemma(), token.tag())).collect(Collectors.toList());
     }
 }
