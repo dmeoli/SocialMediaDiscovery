@@ -189,8 +189,8 @@ public class RedditDatabase extends SocialMediaDatabase {
         Set<Document> filteredComments = new HashSet<>();
         getCollection(COMMENTS_COLLECTION).find(
                 and(eq(PARENT_ID_FIELD_NAME, parentID),
-                        gte(COMMENT_BODY_LENGTH_FIELD_NAME, getCommentsBodiesLength() /
-                                getCollection(COMMENTS_COLLECTION).count())))
+                    gte(COMMENT_BODY_LENGTH_FIELD_NAME, getCommentsBodiesLength() /
+                            getCollection(COMMENTS_COLLECTION).count())))
                 .forEach((Block<? super Document>) comment -> {
                     if (Objects.requireNonNull(getCollection(AUTHORS_COLLECTION).find(
                             eq(AUTHOR_FIELD_NAME, comment.getString(AUTHOR_FIELD_NAME)))

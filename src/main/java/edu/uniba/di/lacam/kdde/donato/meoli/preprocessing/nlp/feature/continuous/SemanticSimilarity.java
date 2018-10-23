@@ -19,7 +19,6 @@ public class SemanticSimilarity extends ContinuousContentBasedFeatureExtraction 
 
     static {
         WS4JConfiguration.getInstance().setMFS(true);
-        WS4JConfiguration.getInstance().setCache(true);
         WS4JConfiguration.getInstance().setMemoryDB(true);
         lin = new Lin(db);
     }

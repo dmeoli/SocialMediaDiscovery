@@ -19,14 +19,19 @@ public class Emotion extends DiscreteContentBasedFeatureExtraction {
 
     static {
         WNAffectConfiguration.getInstance().setCache(true);
-        WNAffectConfiguration.getInstance().setMemoryDB(true);
         wnAffect = new WNAffect(((MITWordNet) db).getDictionary());
     }
 
     @Override
     public Set<String> extractFeature(Post postX, Post postY) {
-        Set<String> emotionsPostX = new HashSet<>();
-        for (WordLemmaTag wordLemmaTagX : postX.getBodyPOSTags()) {
+        Set<String> emotionsPostX = getEmotions(postX);
+        emotionsPostX.retainAll(getEmotions(postY));
+        return emotionsPostX;
+    }
+
+    private Set<String> getEmotions(Post post) {
+        Set<String> emotionsPost = new HashSet<>();
+        for (WordLemmaTag wordLemmaTagX : post.getBodyPOSTags()) {
             String parent;
             try {
                 parent = wnAffect.getParent(wnAffect.getEmotion(wordLemmaTagX.lemma(), Objects.requireNonNull(
@@ -34,20 +39,8 @@ public class Emotion extends DiscreteContentBasedFeatureExtraction {
             } catch (IllegalArgumentException e) {
                 continue;
             }
-            if (Objects.nonNull(parent)) emotionsPostX.add(parent);
+            if (Objects.nonNull(parent)) emotionsPost.add(parent);
         }
-        Set<String> emotionsPostY = new HashSet<>();
-        for (WordLemmaTag wordLemmaTagY : postY.getBodyPOSTags()) {
-            String parent;
-            try {
-                parent = wnAffect.getParent(wnAffect.getEmotion(wordLemmaTagY.lemma(), Objects.requireNonNull(
-                        POSTag.getPOS(wordLemmaTagY.tag()))), EMOTION_PARENT_LEVEL);
-            } catch (IllegalArgumentException e) {
-                continue;
-            }
-            if (Objects.nonNull(parent)) emotionsPostY.add(parent);
-        }
-        emotionsPostX.retainAll(emotionsPostY);
-        return emotionsPostX;
+        return emotionsPost;
     }
 }
