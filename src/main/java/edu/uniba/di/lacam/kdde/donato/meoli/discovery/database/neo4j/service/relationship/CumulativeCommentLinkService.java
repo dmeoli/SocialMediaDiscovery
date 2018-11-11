@@ -3,6 +3,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.service.re
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node.CumulativeUser;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeCommentLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.relationship.ICumulativeCommentLinkRepository;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.CommentLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class CumulativeCommentLinkService extends CumulativeLinkService<Cumulati
 
     @Override
     public void cumulateLinks(Collection<? extends Link> temporalSubGraph) {
-        temporalSubGraph.parallelStream().forEach(link -> {
+        temporalSubGraph.stream().filter(link -> link.getClass().equals(CommentLink.class)).forEach(link -> {
             CumulativeUser cumulativeUserFrom = new CumulativeUser(link.getUserFrom());
             CumulativeUser cumulativeUserTo = new CumulativeUser(link.getUserTo());
             Optional<CumulativeCommentLink> cumulativeCommentLink =

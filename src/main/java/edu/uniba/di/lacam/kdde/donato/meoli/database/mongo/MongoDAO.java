@@ -1,4 +1,4 @@
-package edu.uniba.di.lacam.kdde.donato.meoli.database.mongodb;
+package edu.uniba.di.lacam.kdde.donato.meoli.database.mongo;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;

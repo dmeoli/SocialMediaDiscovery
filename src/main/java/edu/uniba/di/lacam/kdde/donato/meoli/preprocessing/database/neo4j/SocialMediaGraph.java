@@ -2,8 +2,8 @@ package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j;
 
 import com.mongodb.Block;
 import com.mongodb.client.MongoIterable;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.SocialMediaDatabase;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Discussion;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.SocialMediaDatabase;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Discussion;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.repository.relationship.ICommentLinkRepository;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.repository.relationship.ILinkRepository;
@@ -72,15 +72,15 @@ public class SocialMediaGraph {
     public Collection<Link> getTemporalSubGraphs(LocalDateTime startUtc, LocalDateTime endUtc) {
         List<Link> temporalSubGraphs = new ArrayList<>();
         linkRepos.parallelStream().map(linkRepo ->
-                linkRepo.findByUTCGreaterThanEqualAndUTCLessThan(startUtc, endUtc)).forEach(temporalSubGraphs::addAll);
+                linkRepo.findByUtcGreaterThanEqualAndUtcLessThan(startUtc, endUtc)).forEach(temporalSubGraphs::addAll);
         return temporalSubGraphs;
     }
 
-    public LocalDateTime getFirstUTC() {
-        return linkRepos.parallelStream().map(ILinkRepository::getFirstUTC).min(LocalDateTime::compareTo).orElse(null);
+    public LocalDateTime getFirstUtc() {
+        return linkRepos.parallelStream().map(ILinkRepository::getFirstUtc).min(LocalDateTime::compareTo).orElse(null);
     }
 
-    public LocalDateTime getLastUTC() {
-        return linkRepos.parallelStream().map(ILinkRepository::getLastUTC).max(LocalDateTime::compareTo).orElse(null);
+    public LocalDateTime getLastUtc() {
+        return linkRepos.parallelStream().map(ILinkRepository::getLastUtc).max(LocalDateTime::compareTo).orElse(null);
     }
 }

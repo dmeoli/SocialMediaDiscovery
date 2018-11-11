@@ -2,7 +2,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuou
 
 import com.google.common.util.concurrent.AtomicDouble;
 import edu.stanford.nlp.ling.WordLemmaTag;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Post;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Post;
 
 import java.util.Collections;
 import java.util.List;

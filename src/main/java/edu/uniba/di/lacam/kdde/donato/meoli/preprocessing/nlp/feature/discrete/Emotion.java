@@ -2,7 +2,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.discrete;
 
 import edu.stanford.nlp.ling.WordLemmaTag;
 import edu.uniba.di.lacam.kdde.WNAffect;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Post;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Post;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.POSTag;
 import edu.uniba.di.lacam.kdde.lexical_db.MITWordNet;
 import edu.uniba.di.lacam.kdde.util.WNAffectConfiguration;

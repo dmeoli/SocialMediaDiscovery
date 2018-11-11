@@ -3,7 +3,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.service.re
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.relationship.ICumulativeLinkRepository;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
-import org.springframework.transaction.annotation.Transactional;
+import edu.uniba.di.lacam.kdde.donato.meoli.util.SocialMediaDiscoveryConfiguration;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,10 +11,9 @@ import java.util.stream.StreamSupport;
 
 public abstract class CumulativeLinkService<T extends CumulativeLink> {
 
-    ICumulativeLinkRepository<T> cumulativeLinkRepo;
+    private int temporalSubGraphsMinutes = SocialMediaDiscoveryConfiguration.getInstance().getTemporalSubGraphsMinutes();
 
-    private int cumulativeTemporalGraphMinutes;
-    private int temporalSubGraphsMinutes;
+    ICumulativeLinkRepository<T> cumulativeLinkRepo;
 
     private int cumulativeTemporalGraphNumber;
     int temporalSubGraphNumber;
@@ -27,19 +26,16 @@ public abstract class CumulativeLinkService<T extends CumulativeLink> {
 
     public abstract void cumulateLinks(Collection<? extends Link> temporalSubGraph);
 
-    @Transactional
     public void normalizeCumulativeLinks() {
-        StreamSupport.stream(cumulativeLinkRepo.findAll().spliterator(), true).forEach(cumulativeLink ->
-                cumulativeLink.setCumulativeTemporalSubGraphsCounter(
-                        Arrays.copyOf(cumulativeLink.getCumulativeTemporalSubGraphsCounter(), getCumulativeGraphCounterArraySize())));
+        StreamSupport.stream(cumulativeLinkRepo.findAll().spliterator(), true).forEach(cumulativeLink -> {
+            cumulativeLink.setCumulativeTemporalSubGraphsCounter(
+                    Arrays.copyOf(cumulativeLink.getCumulativeTemporalSubGraphsCounter(), getCumulativeGraphCounterArraySize()));
+            cumulativeLinkRepo.save(cumulativeLink);
+        });
     }
 
-    public void setCumulativeTemporalGraphMinutes(int cumulativeTemporalGraphMinutes) {
-        this.cumulativeTemporalGraphMinutes = cumulativeTemporalGraphMinutes;
-    }
-
-    public void setTemporalSubGraphsMinutes(int temporalSubGraphMinutes) {
-        this.temporalSubGraphsMinutes = temporalSubGraphMinutes;
+    public void setTemporalSubGraphsMinutes(int temporalSubGraphsMinutes) {
+        this.temporalSubGraphsMinutes = temporalSubGraphsMinutes;
     }
 
     public void setCumulativeTemporalGraphNumber(int cumulativeTemporalGraphNumber) {
@@ -51,6 +47,7 @@ public abstract class CumulativeLinkService<T extends CumulativeLink> {
     }
 
     int getCumulativeGraphCounterArraySize() {
-        return (cumulativeTemporalGraphMinutes / temporalSubGraphsMinutes) * cumulativeTemporalGraphNumber;
+        return (SocialMediaDiscoveryConfiguration.getInstance().getCumulativeTemporalGraphMinutes() /
+                temporalSubGraphsMinutes) * cumulativeTemporalGraphNumber;
     }
 }

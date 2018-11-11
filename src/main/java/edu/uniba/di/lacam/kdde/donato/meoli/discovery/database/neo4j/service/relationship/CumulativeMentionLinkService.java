@@ -4,6 +4,7 @@ import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeMentionLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.relationship.ICumulativeMentionLinkRepository;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.MentionLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class CumulativeMentionLinkService extends CumulativeLinkService<Cumulati
 
     @Override
     public void cumulateLinks(Collection<? extends Link> temporalSubGraph) {
-        temporalSubGraph.parallelStream().forEach(link -> {
+        temporalSubGraph.stream().filter(link -> link.getClass().equals(MentionLink.class)).forEach(link -> {
             CumulativeUser cumulativeUserFrom = new CumulativeUser(link.getUserFrom());
             CumulativeUser cumulativeUserTo = new CumulativeUser(link.getUserTo());
             Optional<CumulativeMentionLink> cumulativeMentionLink =

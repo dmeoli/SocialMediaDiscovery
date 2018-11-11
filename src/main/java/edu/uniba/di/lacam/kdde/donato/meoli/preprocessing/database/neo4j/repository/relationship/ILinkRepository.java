@@ -12,10 +12,10 @@ import java.util.Collection;
 public interface ILinkRepository<T extends Link> extends Neo4jRepository<T, Long> {
 
     @Query("MATCH ()-[r]->() RETURN min(r.utc)")
-    LocalDateTime getFirstUTC();
+    LocalDateTime getFirstUtc();
 
     @Query("MATCH ()-[r]->() RETURN max(r.utc)")
-    LocalDateTime getLastUTC();
+    LocalDateTime getLastUtc();
 
-    Collection<T> findByUTCGreaterThanEqualAndUTCLessThan(LocalDateTime startUtc, LocalDateTime endUtc);
+    Collection<T> findByUtcGreaterThanEqualAndUtcLessThan(LocalDateTime startUtc, LocalDateTime endUtc);
 }

@@ -1,11 +1,11 @@
-package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb;
+package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.gridfs.model.GridFSFile;
-import edu.uniba.di.lacam.kdde.donato.meoli.database.mongodb.MongoDAO;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Discussion;
+import edu.uniba.di.lacam.kdde.donato.meoli.database.mongo.MongoDAO;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Discussion;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.StanfordNLPAnalyzer;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.ContentBasedFeatureExtraction;
 import org.springframework.beans.factory.annotation.Autowired;

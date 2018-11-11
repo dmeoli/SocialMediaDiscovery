@@ -2,7 +2,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli;
 
 import edu.uniba.di.lacam.kdde.donato.meoli.database.Dataset;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.mining.GraphMining;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.RedditDatabase;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.RedditDatabase;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.SocialMediaGraph;
 import edu.uniba.di.lacam.kdde.donato.meoli.util.SocialMediaDiscoveryConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +59,8 @@ public class SocialMediaDiscoveryApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        redditDatabase.createSocialMediaDatabase();
-        socialMediaGraph.createSocialMediaGraph(redditDatabase);
+        // redditDatabase.createSocialMediaDatabase();
+        // socialMediaGraph.createSocialMediaGraph(redditDatabase);
         graphMining.executeTemporalSocialMediaAnalysis();
     }
 

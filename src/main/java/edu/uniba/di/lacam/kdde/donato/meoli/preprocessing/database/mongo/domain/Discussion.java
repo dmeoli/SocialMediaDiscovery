@@ -1,4 +1,4 @@
-package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain;
+package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain;
 
 import edu.stanford.nlp.ling.WordLemmaTag;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous.ContinuousContentBasedLink;

@@ -1,8 +1,8 @@
 package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature;
 
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Comment;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Discussion;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Post;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Comment;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Discussion;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Post;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous.*;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.discrete.DiscreteContentBasedFeatureExtraction;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.discrete.Emotion;

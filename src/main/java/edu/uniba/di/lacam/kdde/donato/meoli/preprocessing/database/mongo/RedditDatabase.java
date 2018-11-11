@@ -1,11 +1,10 @@
-package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb;
+package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo;
 
-import com.mongodb.Block;
 import com.mongodb.client.model.IndexModel;
 import com.mongodb.client.model.IndexOptions;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Comment;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Discussion;
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Post;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Comment;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Discussion;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Post;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +14,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
@@ -59,8 +58,7 @@ public class RedditDatabase extends SocialMediaDatabase {
 
     private static final String REDDIT_MENTION_PREFIX = "/u/";
 
-    public RedditDatabase() {
-    }
+    public RedditDatabase() { }
 
     @Autowired
     public RedditDatabase(GridFsTemplate socialMediaCollection) {
@@ -137,14 +135,13 @@ public class RedditDatabase extends SocialMediaDatabase {
         if (Objects.nonNull(numberOfDistinctSubreddits) &&
                 numberOfDistinctSubreddits.getInteger(NUMBER_OF_DISTINCT_SUBREDDITS_FIELD_NAME) ==
                         getCollection(SUBREDDITS_COLLECTION).count())
-            getCollection(SUBREDDITS_COLLECTION).find().forEach((Consumer<? super Document>) subreddit ->
-                    distinctSubredditIDs.add(subreddit.getString(AGGREGATE_ID_FIELD_NAME)));
+            StreamSupport.stream(getCollection(SUBREDDITS_COLLECTION).find().spliterator(), true)
+                    .forEach(subreddit -> distinctSubredditIDs.add(subreddit.getString(AGGREGATE_ID_FIELD_NAME)));
         else {
-            getCollection(SUBMISSIONS_COLLECTION).aggregate(Arrays.asList(
+            StreamSupport.stream(getCollection(SUBMISSIONS_COLLECTION).aggregate(Arrays.asList(
                     group("$" + SUBREDDIT_ID_FIELD_NAME),
-                    out(SUBREDDITS_COLLECTION + YEAR + SEPARATOR + MONTH))).allowDiskUse(true)
-                    .forEach((Consumer<? super Document>) subreddit ->
-                            distinctSubredditIDs.add(subreddit.getString(AGGREGATE_ID_FIELD_NAME)));
+                    out(SUBREDDITS_COLLECTION + YEAR + SEPARATOR + MONTH))).allowDiskUse(true).spliterator(),
+                    true).forEach(subreddit -> distinctSubredditIDs.add(subreddit.getString(AGGREGATE_ID_FIELD_NAME)));
             getCollection(STATISTICS_COLLECTION).insertOne(
                     new Document(NUMBER_OF_DISTINCT_SUBREDDITS_FIELD_NAME, distinctSubredditIDs.size()));
         }
@@ -153,22 +150,17 @@ public class RedditDatabase extends SocialMediaDatabase {
     }
 
     private Set<Document> getFilteredSubmissions(String subredditID) {
-        Set<Document> filteredSubmissions = new HashSet<>();
-        getCollection(SUBMISSIONS_COLLECTION).find(
+        return StreamSupport.stream(getCollection(SUBMISSIONS_COLLECTION).find(
                 and(eq(SUBREDDIT_ID_FIELD_NAME, subredditID),
                         gte(NUMBER_OF_COMMENTS_FIELD_NAME, getCollection(COMMENTS_COLLECTION).count() /
                                 getCollection(SUBMISSIONS_COLLECTION).count()),
                         gte(SUBMISSION_SELFTEXT_LENGTH_FIELD_NAME,
                                 getSubmissionsSelftextsLength() / getCollection(SUBMISSIONS_COLLECTION).count())))
-                .forEach((Block<? super Document>) submission -> {
-                    if (Objects.requireNonNull(getCollection(AUTHORS_COLLECTION).find(
-                            eq(AUTHOR_FIELD_NAME, submission.getString(AUTHOR_FIELD_NAME)))
-                            .first()).getLong(COUNT_AUTHOR_FIELD_NAME) >=
-                            (getCollection(SUBMISSIONS_COLLECTION).count() +
-                                    getCollection(COMMENTS_COLLECTION).count()) / getNumberOfDistinctAuthors())
-                        filteredSubmissions.add(submission);
-                });
-        return filteredSubmissions;
+                .spliterator(), true).filter(submission -> Objects.requireNonNull(getCollection(AUTHORS_COLLECTION).find(
+                eq(AUTHOR_FIELD_NAME, submission.getString(AUTHOR_FIELD_NAME)))
+                .first()).getLong(COUNT_AUTHOR_FIELD_NAME) >=
+                (getCollection(SUBMISSIONS_COLLECTION).count() +
+                        getCollection(COMMENTS_COLLECTION).count()) / getNumberOfDistinctAuthors()).collect(Collectors.toSet());
     }
 
     private long getSubmissionsSelftextsLength() {
@@ -176,7 +168,7 @@ public class RedditDatabase extends SocialMediaDatabase {
         Document submissionsBodyLengthDoc = getCollection(STATISTICS_COLLECTION).find(
                 exists(SUBMISSIONS_SELFTEXTS_LENGTH_FIELD_NAME)).first();
         if (Objects.isNull(submissionsBodyLengthDoc)) {
-            getCollection(SUBMISSIONS_COLLECTION).find().forEach((Consumer<? super Document>) submission ->
+            StreamSupport.stream(getCollection(SUBMISSIONS_COLLECTION).find().spliterator(), true).forEach(submission ->
                     submissionsSelftextsLength.addAndGet(submission.getDouble(SUBMISSION_SELFTEXT_LENGTH_FIELD_NAME).longValue()));
             getCollection(STATISTICS_COLLECTION).insertOne(
                     new Document(SUBMISSIONS_SELFTEXTS_LENGTH_FIELD_NAME, submissionsSelftextsLength));
@@ -186,20 +178,15 @@ public class RedditDatabase extends SocialMediaDatabase {
     }
 
     private Set<Document> getFilteredComments(String parentID) {
-        Set<Document> filteredComments = new HashSet<>();
-        getCollection(COMMENTS_COLLECTION).find(
+        return StreamSupport.stream(getCollection(COMMENTS_COLLECTION).find(
                 and(eq(PARENT_ID_FIELD_NAME, parentID),
-                    gte(COMMENT_BODY_LENGTH_FIELD_NAME, getCommentsBodiesLength() /
-                            getCollection(COMMENTS_COLLECTION).count())))
-                .forEach((Block<? super Document>) comment -> {
-                    if (Objects.requireNonNull(getCollection(AUTHORS_COLLECTION).find(
-                            eq(AUTHOR_FIELD_NAME, comment.getString(AUTHOR_FIELD_NAME)))
-                            .first()).getLong(COUNT_AUTHOR_FIELD_NAME) >=
-                            (getCollection(SUBMISSIONS_COLLECTION).count() +
-                                    getCollection(COMMENTS_COLLECTION).count()) / getNumberOfDistinctAuthors())
-                        filteredComments.add(comment);
-                });
-        return filteredComments;
+                        gte(COMMENT_BODY_LENGTH_FIELD_NAME, getCommentsBodiesLength() /
+                                getCollection(COMMENTS_COLLECTION).count()))).spliterator(), true)
+                .filter(comment -> Objects.requireNonNull(getCollection(AUTHORS_COLLECTION).find(
+                        eq(AUTHOR_FIELD_NAME, comment.getString(AUTHOR_FIELD_NAME)))
+                        .first()).getLong(COUNT_AUTHOR_FIELD_NAME) >=
+                        (getCollection(SUBMISSIONS_COLLECTION).count() + getCollection(COMMENTS_COLLECTION).count()) /
+                                getNumberOfDistinctAuthors()).collect(Collectors.toSet());
     }
 
     private long getCommentsBodiesLength() {
@@ -207,7 +194,7 @@ public class RedditDatabase extends SocialMediaDatabase {
         Document commentsBodyLengthDoc = getCollection(STATISTICS_COLLECTION).find(
                 exists(COMMENTS_BODIES_LENGTH_FIELD_NAME)).first();
         if (Objects.isNull(commentsBodyLengthDoc)) {
-            getCollection(COMMENTS_COLLECTION).find().forEach((Consumer<? super Document>) comment ->
+            StreamSupport.stream(getCollection(COMMENTS_COLLECTION).find().spliterator(), true).forEach(comment ->
                     commentsBodiesLength.addAndGet(comment.getDouble(COMMENT_BODY_LENGTH_FIELD_NAME).longValue()));
             getCollection(STATISTICS_COLLECTION).insertOne(
                     new Document(COMMENTS_BODIES_LENGTH_FIELD_NAME, commentsBodiesLength));
@@ -225,14 +212,13 @@ public class RedditDatabase extends SocialMediaDatabase {
             numberOfDistinctAuthors = numberOfDistinctAuthorsDoc.getInteger(NUMBER_OF_DISTINCT_AUTHORS_FIELD_NAME);
         else {
             Set<String> authors = new HashSet<>();
-            getCollection(SUBMISSIONS_COLLECTION).aggregate(Collections.singletonList(
-                    group("$" + AUTHOR_FIELD_NAME))).allowDiskUse(true)
-                    .forEach((Consumer<? super Document>) authorSubmission ->
+            StreamSupport.stream(getCollection(SUBMISSIONS_COLLECTION).aggregate(Collections.singletonList(
+                    group("$" + AUTHOR_FIELD_NAME))).allowDiskUse(true).spliterator(), true)
+                    .forEach(authorSubmission ->
                             authors.add(authorSubmission.getString(AGGREGATE_ID_FIELD_NAME)));
-            getCollection(COMMENTS_COLLECTION).aggregate(Collections.singletonList(
-                    group("$" + AUTHOR_FIELD_NAME))).allowDiskUse(true)
-                    .forEach((Consumer<? super Document>) authorComment ->
-                            authors.add(authorComment.getString(AGGREGATE_ID_FIELD_NAME)));
+            StreamSupport.stream(getCollection(COMMENTS_COLLECTION).aggregate(Collections.singletonList(
+                    group("$" + AUTHOR_FIELD_NAME))).allowDiskUse(true).spliterator(), true)
+                    .forEach(authorComment -> authors.add(authorComment.getString(AGGREGATE_ID_FIELD_NAME)));
             numberOfDistinctAuthors = authors.size();
             getCollection(STATISTICS_COLLECTION).insertOne(
                     new Document(NUMBER_OF_DISTINCT_AUTHORS_FIELD_NAME, numberOfDistinctAuthors));

@@ -4,11 +4,15 @@ import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.node.ICumulativeUserRepository;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.service.relationship.*;
+import edu.uniba.di.lacam.kdde.donato.meoli.discovery.mining.GraphMining;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.util.SocialMediaDiscoveryConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 
@@ -17,6 +21,10 @@ import static java.util.stream.Collectors.toMap;
 @Component
 public class CumulativeSocialMediaGraph {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphMining.class);
+
+    private LocalDateTime startUtc;
+    private LocalDateTime endUtc;
     private ICumulativeUserRepository cumulativeUserRepo;
     private List<CumulativeLinkService<? extends CumulativeLink>> cumulativeLinkServices;
 
@@ -39,9 +47,25 @@ public class CumulativeSocialMediaGraph {
             cumulativeLinkServices.add(cumulativeEmotionalLinkService);
     }
 
+    public LocalDateTime getStartUtc() {
+        return startUtc;
+    }
+
+    public void setStartUtc(LocalDateTime startUtc) {
+        this.startUtc = startUtc;
+    }
+
+    public LocalDateTime getEndUtc() {
+        return endUtc;
+    }
+
+    public void setEndUtc(LocalDateTime endUtc) {
+        this.endUtc = endUtc;
+    }
+
     public void cumulateTemporalSubGraphs(Collection<Link> temporalSubGraph) {
-        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkRepo ->
-                cumulativeLinkRepo.cumulateLinks(temporalSubGraph));
+        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkService ->
+                cumulativeLinkService.cumulateLinks(temporalSubGraph));
     }
 
     public void normalizeCumulativeSocialMediaGraph() {
@@ -52,30 +76,52 @@ public class CumulativeSocialMediaGraph {
         cumulativeUserRepo.deleteAll();
     }
 
-    public void setTemporalSubGraphNumber(int temporalSubGraphNumber) {
-        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkRepo ->
-                cumulativeLinkRepo.setTemporalSubGraphNumber(temporalSubGraphNumber));
+    public void setTemporalSubGraphsMinutes(int temporalSubGraphsMinutes) {
+        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkService ->
+                cumulativeLinkService.setTemporalSubGraphsMinutes(temporalSubGraphsMinutes));
     }
 
-    public void setTemporalSubGraphsMinutes(int temporalSubGraphsMinutes) {
-        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkRepo ->
-                cumulativeLinkRepo.setTemporalSubGraphsMinutes(temporalSubGraphsMinutes));
+    public void setTemporalSubGraphNumber(int temporalSubGraphNumber) {
+        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkService ->
+                cumulativeLinkService.setTemporalSubGraphNumber(temporalSubGraphNumber));
     }
 
     public void setCumulativeTemporalGraphNumber(int cumulativeTemporalGraphNumber) {
-        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkRepo ->
-                cumulativeLinkRepo.setCumulativeTemporalGraphNumber(cumulativeTemporalGraphNumber));
+        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkService ->
+                cumulativeLinkService.setCumulativeTemporalGraphNumber(cumulativeTemporalGraphNumber));
     }
 
     public void computeCentralities() {
+        long t = System.currentTimeMillis();
+        LOGGER.info("Starting the computation of the In-Degrees on the Cumulative Temporal Graph from {} to {}",
+                startUtc, endUtc);
         cumulativeUserRepo.computeInDegree();
+        LOGGER.info("The computation of the In-Degrees on the Cumulative Temporal Graph from {} to {} has been " +
+                "finished in {} msec.", startUtc, endUtc, System.currentTimeMillis() - t);
+        t = System.currentTimeMillis();
+        LOGGER.info("Starting the computation of the Out-Degrees on the Cumulative Temporal Graph from {} to {}",
+                startUtc, endUtc);
         cumulativeUserRepo.computeOutDegree();
-        cumulativeUserRepo.computePageRank();
-        cumulativeUserRepo.computeBetweennessCentrality();
+        LOGGER.info("The computation of the Out-Degrees on the Cumulative Temporal Graph from {} to {} has been " +
+                "finished in {} msec.", startUtc, endUtc, System.currentTimeMillis() - t);
+        LOGGER.info("Starting the computation of the Page Rank on the Cumulative Temporal Graph from {} to {}",
+                startUtc, endUtc);
+        t = cumulativeUserRepo.computePageRank();
+        LOGGER.info("The computation of the Page Rank on the Cumulative Temporal Graph from {} to {} has been " +
+                "finished in {} sec.", startUtc, endUtc, t);
+        LOGGER.info("Starting the computation of the Betweenness Centrality on the Cumulative Temporal Graph from {} " +
+                "to {}", startUtc, endUtc);
+        t = cumulativeUserRepo.computeBetweennessCentrality();
+        LOGGER.info("The computation of the Betweenness Centrality on the Cumulative Temporal Graph from {} to {} has " +
+                "been finished in {} sec.", startUtc, endUtc, t);
     }
 
     public void computeCommunityDetection() {
-        cumulativeUserRepo.computeLouvain();
+        LOGGER.info("Starting the computation of the Louvain Community Detection on the Cumulative Temporal Graph from " +
+                "{} to {}", startUtc, endUtc);
+        long t = cumulativeUserRepo.computeLouvain();
+        LOGGER.info("The computation of the Louvain Community Detection on the Cumulative Temporal Graph from {} to {} " +
+                "has been finished in {} sec.", startUtc, endUtc, t);
     }
 
     public Map<String, CumulativeUser> getFilteredCumulativeUsers(int nodeIndicatorsThreshold) {

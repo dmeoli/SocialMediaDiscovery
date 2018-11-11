@@ -4,6 +4,7 @@ import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeEmotionalLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.relationship.ICumulativeEmotionalLinkRepository;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.content_based.EmotionalLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class CumulativeEmotionalLinkService extends CumulativeLinkService<Cumula
 
     @Override
     public void cumulateLinks(Collection<? extends Link> temporalSubGraph) {
-        temporalSubGraph.parallelStream().forEach(link -> {
+        temporalSubGraph.stream().filter(link -> link.getClass().equals(EmotionalLink.class)).forEach(link -> {
             CumulativeUser cumulativeUserFrom = new CumulativeUser(link.getUserFrom());
             CumulativeUser cumulativeUserTo = new CumulativeUser(link.getUserTo());
             Optional<CumulativeEmotionalLink> cumulativeEmotionalSimilarityLink =

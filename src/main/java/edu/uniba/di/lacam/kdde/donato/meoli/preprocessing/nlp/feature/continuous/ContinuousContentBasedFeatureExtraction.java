@@ -1,6 +1,6 @@
 package edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous;
 
-import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongodb.domain.Post;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Post;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.ContentBasedFeatureExtraction;
 
 public abstract class ContinuousContentBasedFeatureExtraction extends ContentBasedFeatureExtraction {

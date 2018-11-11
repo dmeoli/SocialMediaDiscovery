@@ -1,4 +1,4 @@
-package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.mongodb.domain;
+package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.mongo.domain;
 
 import com.google.gson.annotations.Expose;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node.CumulativeUser;

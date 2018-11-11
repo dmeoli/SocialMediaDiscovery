@@ -1,8 +1,8 @@
-package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.mongodb;
+package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.mongo;
 
 import com.google.gson.GsonBuilder;
-import edu.uniba.di.lacam.kdde.donato.meoli.database.mongodb.MongoDAO;
-import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.mongodb.domain.Result;
+import edu.uniba.di.lacam.kdde.donato.meoli.database.mongo.MongoDAO;
+import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.mongo.domain.Result;
 import org.bson.Document;
 
 public class SocialMediaDiscoveryResult extends MongoDAO {

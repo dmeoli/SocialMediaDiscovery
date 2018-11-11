@@ -21,17 +21,15 @@ public interface ICumulativeUserRepository extends Neo4jRepository<CumulativeUse
            "SET p.outDegree = outDegree")
     void computeOutDegree();
 
-    @Query("CALL algo.betweenness('CumulativeUser', null, " +
-           "{writeProperty:'betweennessScore'})")
-    void computeBetweennessCentrality();
+    @Query("CALL algo.betweenness('CumulativeUser', null, {writeProperty:'betweennessScore'}) YIELD computeMillis")
+    long computeBetweennessCentrality();
 
-    @Query("CALL algo.pageRank('CumulativeUser', null, " +
-           "{writeProperty:'pageRankScore'})")
-    void computePageRank();
+    @Query("CALL algo.pageRank('CumulativeUser', null, {writeProperty:'pageRankScore'}) YIELD computeMillis")
+    long computePageRank();
 
-    @Query("CALL algo.louvain('CumulativeUser', null, " +
-           "{weightProperty:'weight', writeProperty:'louvainCommunityID'})")
-    void computeLouvain();
+    @Query("CALL algo.louvain('CumulativeUser', null, {weightProperty:'weight', writeProperty:'louvainCommunityID'}) " +
+           "YIELD computeMillis")
+    long computeLouvain();
 
     @Query("MATCH (p:CumulativeUser)" +
            "WITH MAX(p.inDegree) as maxInDegree, " +
@@ -39,9 +37,9 @@ public interface ICumulativeUserRepository extends Neo4jRepository<CumulativeUse
                 "MAX(p.betweennessScore) as maxBetweennessScore, " +
                 "MAX(p.pageRankScore) as maxPageRankScore " +
            "MATCH (q:CumulativeUser) " +
-           "WHERE q.inDegree >= ((maxInDegree * { nodeIndicatorsThreshold } ) / 100) " +
-              "OR q.outDegree >= ((maxOutDegree * { nodeIndicatorsThreshold } ) / 100) " +
-              "OR q.betweennessScore >= ((maxBetweennessScore { nodeIndicatorsThreshold } ) / 100) " +
-              "OR q.pageRankScore >= ((maxPageRankScore * { nodeIndicatorsThreshold } ) / 100) RETURN q")
+           "WHERE q.inDegree >= ((maxInDegree * {nodeIndicatorsThreshold}) / 100) " +
+              "OR q.outDegree >= ((maxOutDegree * {nodeIndicatorsThreshold}) / 100) " +
+              "OR q.betweennessScore >= ((maxBetweennessScore * {nodeIndicatorsThreshold}) / 100) " +
+              "OR q.pageRankScore >= ((maxPageRankScore * {nodeIndicatorsThreshold}) / 100) RETURN q")
     Collection<CumulativeUser> getFilteredCumulativeUsers(@Param("nodeIndicatorsThreshold") int nodeIndicatorsThreshold);
 }
