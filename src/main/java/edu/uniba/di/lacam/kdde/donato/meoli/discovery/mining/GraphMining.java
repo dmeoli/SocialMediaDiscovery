@@ -65,7 +65,6 @@ public class GraphMining {
         LocalDateTime lastUtc = socialMediaGraph.getLastUtc();
         cumulativeSocialMediaGraph.setStartUtc(firstUtc);
         LocalDateTime endUtc = firstUtc.plusMinutes(cumulativeTemporalGraphMinutes);
-        int temporalSubGraphsMinutesCounter = temporalSubGraphsMinutes;
         int cumulativeTemporalGraphNumber = 1;
         cumulativeSocialMediaGraph.setCumulativeTemporalGraphNumber(cumulativeTemporalGraphNumber);
         int temporalSubGraphNumber = 0;
@@ -84,7 +83,6 @@ public class GraphMining {
                 cumulativeSocialMediaGraph.setEndUtc(endUtc);
                 cumulativeSocialMediaGraph.setCumulativeTemporalGraphNumber(++cumulativeTemporalGraphNumber);
                 endUtc = endUtc.plusMinutes(cumulativeTemporalGraphMinutes);
-                temporalSubGraphsMinutesCounter += temporalSubGraphsMinutes;
                 analyzeTemporalSubGraph(labeledEdges, frequentPatternMinSupport);
                 cumulativeSocialMediaGraph.normalizeCumulativeSocialMediaGraph();
             }
@@ -142,8 +140,8 @@ public class GraphMining {
         Lattice<ItemSet<LabeledEdge, Pair<Set<Integer>>>> patterns = strategy.execute();
         strategy.commit();
         StreamSupport.stream(patterns.spliterator(), true).forEach(pattern -> {
-            if (Objects.nonNull(pattern.getSuffix()))
-                frequentPatterns.add(new FrequentPattern(evaluator.getRelativeFrequency(pattern.getEval().getIncrement()), pattern));
+            if (Objects.nonNull(pattern.getSuffix())) frequentPatterns.add(
+                    new FrequentPattern(evaluator.getRelativeFrequency(pattern.getEval().getIncrement()), pattern));
             else
                 frequentPatterns.add(new FrequentPattern(FREQUENT_PATTERN_RELATIVE_SUPPORT, pattern));
         });
