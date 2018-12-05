@@ -31,7 +31,7 @@ public interface ICumulativeUserRepository extends Neo4jRepository<CumulativeUse
            "YIELD computeMillis")
     long computeLouvain();
 
-    @Query("MATCH (p:CumulativeUser)" +
+    @Query("MATCH (p:CumulativeUser) " +
            "WITH MAX(p.inDegree) as maxInDegree, " +
                 "MAX(p.outDegree) as maxOutDegree, " +
                 "MAX(p.betweennessScore) as maxBetweennessScore, " +

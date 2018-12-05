@@ -21,7 +21,7 @@ public class SocialMediaDiscoveryApplication implements CommandLineRunner {
     private static final int CUMULATIVE_TEMPORAL_GRAPH_MINUTES = 60 * 24;
     private static final int TEMPORAL_SUB_GRAPHS_MINUTES = 60 * 2;
 
-    private static final float MIN_SUPPORT = 0.01F;
+    private static final float MIN_SUPPORT = 0.5F;
 
     private final RedditDatabase redditDatabase;
     // private final TwitterDatabase twitterDatabase;

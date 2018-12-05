@@ -7,11 +7,8 @@ import edu.uniba.di.lacam.kdde.donato.meoli.util.SocialMediaDiscoveryConfigurati
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.StreamSupport;
 
 public abstract class CumulativeLinkService<T extends CumulativeLink> {
-
-    private int temporalSubGraphsMinutes = SocialMediaDiscoveryConfiguration.getInstance().getTemporalSubGraphsMinutes();
 
     ICumulativeLinkRepository<T> cumulativeLinkRepo;
 
@@ -27,15 +24,11 @@ public abstract class CumulativeLinkService<T extends CumulativeLink> {
     public abstract void cumulateLinks(Collection<? extends Link> temporalSubGraph);
 
     public void normalizeCumulativeLinks() {
-        StreamSupport.stream(cumulativeLinkRepo.findAll().spliterator(), true).forEach(cumulativeLink -> {
-            cumulativeLink.setCumulativeTemporalSubGraphsCounter(
-                    Arrays.copyOf(cumulativeLink.getCumulativeTemporalSubGraphsCounter(), getCumulativeGraphCounterArraySize()));
+        cumulativeLinkRepo.findAll().forEach(cumulativeLink -> {
+            cumulativeLink.setCumulativeTemporalSubGraphsCounter(Arrays.copyOf(
+                    cumulativeLink.getCumulativeTemporalSubGraphsCounter(), getCumulativeGraphCounterArraySize()));
             cumulativeLinkRepo.save(cumulativeLink);
         });
-    }
-
-    public void setTemporalSubGraphsMinutes(int temporalSubGraphsMinutes) {
-        this.temporalSubGraphsMinutes = temporalSubGraphsMinutes;
     }
 
     public void setCumulativeTemporalGraphNumber(int cumulativeTemporalGraphNumber) {
@@ -48,6 +41,6 @@ public abstract class CumulativeLinkService<T extends CumulativeLink> {
 
     int getCumulativeGraphCounterArraySize() {
         return (SocialMediaDiscoveryConfiguration.getInstance().getCumulativeTemporalGraphMinutes() /
-                temporalSubGraphsMinutes) * cumulativeTemporalGraphNumber;
+                SocialMediaDiscoveryConfiguration.getInstance().getTemporalSubGraphsMinutes()) * cumulativeTemporalGraphNumber;
     }
 }

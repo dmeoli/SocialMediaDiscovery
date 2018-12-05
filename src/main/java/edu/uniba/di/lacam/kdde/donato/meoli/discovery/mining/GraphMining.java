@@ -7,9 +7,12 @@ import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.SocialMediaGraph;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.util.SocialMediaDiscoveryConfiguration;
+import org.dyminer.jminer.interfaces.ItemSet;
+import org.dyminer.jminer.interfaces.Lattice;
 import org.dyminer.jminer.joiners.FrequencyEvaluator;
 import org.dyminer.jminer.providers.TidlistProvider;
 import org.dyminer.jminer.structures.IncrementalStrategy;
+import org.dyminer.jminer.structures.Pair;
 import org.dyminer.jminer.structures.Strategies;
 import org.dyminer.jminer.structures.TransactionException;
 import org.dyminer.model.LabeledEdge;
@@ -21,7 +24,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -64,7 +66,6 @@ public class GraphMining {
         cumulativeSocialMediaGraph.setStartUtc(firstUtc);
         LocalDateTime endUtc = firstUtc.plusMinutes(cumulativeTemporalGraphMinutes);
         int temporalSubGraphsMinutesCounter = temporalSubGraphsMinutes;
-        cumulativeSocialMediaGraph.setTemporalSubGraphsMinutes(temporalSubGraphsMinutesCounter);
         int cumulativeTemporalGraphNumber = 1;
         cumulativeSocialMediaGraph.setCumulativeTemporalGraphNumber(cumulativeTemporalGraphNumber);
         int temporalSubGraphNumber = 0;
@@ -81,11 +82,10 @@ public class GraphMining {
                     cumulativeSocialMediaGraph.setTemporalSubGraphNumber(++temporalSubGraphNumber);
                 }
                 cumulativeSocialMediaGraph.setEndUtc(endUtc);
-                analyzeTemporalSubGraph(labeledEdges, frequentPatternMinSupport);
                 cumulativeSocialMediaGraph.setCumulativeTemporalGraphNumber(++cumulativeTemporalGraphNumber);
                 endUtc = endUtc.plusMinutes(cumulativeTemporalGraphMinutes);
                 temporalSubGraphsMinutesCounter += temporalSubGraphsMinutes;
-                cumulativeSocialMediaGraph.setTemporalSubGraphsMinutes(temporalSubGraphsMinutesCounter);
+                analyzeTemporalSubGraph(labeledEdges, frequentPatternMinSupport);
                 cumulativeSocialMediaGraph.normalizeCumulativeSocialMediaGraph();
             }
         } finally {
@@ -93,7 +93,7 @@ public class GraphMining {
         }
     }
 
-    private void analyzeTemporalSubGraph(List<Transaction<LabeledEdge>> temporalSubGraphs, float minSupport) {
+    private void analyzeTemporalSubGraph(List<Transaction<LabeledEdge>> temporalSubGraphs, float frequentPatternMinSupport) {
         LOGGER.info("Starting of the computation of the Centralities on the Cumulative Temporal Graph from {} " +
                 "to {}", cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc());
         cumulativeSocialMediaGraph.computeCentralities();
@@ -104,9 +104,10 @@ public class GraphMining {
         cumulativeSocialMediaGraph.computeCommunityDetection();
         LOGGER.info("The computation of the Community Detection on the Cumulative Temporal Graph from {} to {} has " +
                 "been finished", cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc());
-        Map<String, CumulativeUser> cumulativeUsers = cumulativeSocialMediaGraph.getFilteredCumulativeUsers(NODE_INDICATORS_THRESHOLD);
+        Map<String, CumulativeUser> cumulativeUsers = cumulativeSocialMediaGraph
+                .getFilteredCumulativeUsers(NODE_INDICATORS_THRESHOLD);
         try {
-            frequentPatternDiscovery(temporalSubGraphs, minSupport).parallelStream()
+            frequentPatternDiscovery(temporalSubGraphs, frequentPatternMinSupport).parallelStream()
                     .filter(frequentPattern -> frequentPattern.getPatterns().getLength() >= FREQUENT_PATTERN_THRESHOLD)
                     .filter(frequentPattern -> cumulativeUsers.containsKey(frequentPattern.getPatterns().getSuffix().getStartNode()))
                     .forEach(frequentPattern -> cumulativeUsers.get(frequentPattern.getPatterns().getSuffix().getStartNode())
@@ -118,30 +119,34 @@ public class GraphMining {
         LOGGER.info("Saving results of the Social Media Discovery from {} to {}",
                 cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc());
         resultsDB.insertResult(new Result(cumulativeSocialMediaGraph.getEndUtc(), new ArrayList<>(cumulativeUsers.values())),
-                cumulativeTemporalGraphMinutes, temporalSubGraphsMinutes, minSupport);
+                cumulativeTemporalGraphMinutes, temporalSubGraphsMinutes, frequentPatternMinSupport);
         LOGGER.info("The results of the Social Media Discovery from {} to {} has been saved",
                 cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc());
     }
 
-    private List<FrequentPattern> frequentPatternDiscovery(List<Transaction<LabeledEdge>> temporalSubGraphs,
-                                                           float minSupport) throws TransactionException {
+    private List<FrequentPattern> frequentPatternDiscovery(
+            List<? extends Transaction<LabeledEdge>> temporalSubGraphs, float minSupport) throws TransactionException {
         long t = System.currentTimeMillis();
         LOGGER.info("Starting Frequent Pattern Discovery on Temporal Sub Graphs from {} to {}",
                 cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc());
+        List<FrequentPattern> frequentPatterns = new ArrayList<>();
         TidlistProvider<LabeledEdge> provider = new TidlistProvider<>(true);
         IncrementalStrategy<LabeledEdge, Set<Integer>> strategy = Strategies.onlineSubgraphEclat(
                 provider, MAX_PATTERN_LENGTH, minSupport);
         FrequencyEvaluator<Set<Integer>> evaluator = (FrequencyEvaluator<Set<Integer>>) strategy.getEvaluator();
         evaluator.setTransactionCount(temporalSubGraphs.size());
         temporalSubGraphs.parallelStream().forEach(transaction -> {
-            StreamSupport.stream(transaction.spliterator(), true).forEach(strategy::setGenerator);
+            transaction.forEach(strategy::setGenerator);
             provider.accept(transaction);
         });
+        Lattice<ItemSet<LabeledEdge, Pair<Set<Integer>>>> patterns = strategy.execute();
         strategy.commit();
-        List<FrequentPattern> frequentPatterns = StreamSupport.stream(strategy.execute().spliterator(), true)
-                .map(pattern -> Objects.nonNull(pattern.getSuffix()) ?
-                        new FrequentPattern(evaluator.getRelativeFrequency(pattern.getEval().getIncrement()), pattern) :
-                        new FrequentPattern(FREQUENT_PATTERN_RELATIVE_SUPPORT, pattern)).collect(Collectors.toList());
+        StreamSupport.stream(patterns.spliterator(), true).forEach(pattern -> {
+            if (Objects.nonNull(pattern.getSuffix()))
+                frequentPatterns.add(new FrequentPattern(evaluator.getRelativeFrequency(pattern.getEval().getIncrement()), pattern));
+            else
+                frequentPatterns.add(new FrequentPattern(FREQUENT_PATTERN_RELATIVE_SUPPORT, pattern));
+        });
         LOGGER.info("The Frequent Pattern Discovery on Temporal Sub Graphs from {} to {} has been finished in {} min.",
                 cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc(),
                 (System.currentTimeMillis() - t) / 60000L);

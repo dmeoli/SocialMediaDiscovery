@@ -64,21 +64,16 @@ public class CumulativeSocialMediaGraph {
     }
 
     public void cumulateTemporalSubGraphs(Collection<Link> temporalSubGraph) {
-        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkService ->
+        cumulativeLinkServices.forEach(cumulativeLinkService ->
                 cumulativeLinkService.cumulateLinks(temporalSubGraph));
     }
 
     public void normalizeCumulativeSocialMediaGraph() {
-        cumulativeLinkServices.parallelStream().forEach(CumulativeLinkService::normalizeCumulativeLinks);
+        cumulativeLinkServices.forEach(CumulativeLinkService::normalizeCumulativeLinks);
     }
 
     public void deleteCumulativeSocialMediaGraph() {
         cumulativeUserRepo.deleteAll();
-    }
-
-    public void setTemporalSubGraphsMinutes(int temporalSubGraphsMinutes) {
-        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkService ->
-                cumulativeLinkService.setTemporalSubGraphsMinutes(temporalSubGraphsMinutes));
     }
 
     public void setTemporalSubGraphNumber(int temporalSubGraphNumber) {
@@ -126,6 +121,6 @@ public class CumulativeSocialMediaGraph {
 
     public Map<String, CumulativeUser> getFilteredCumulativeUsers(int nodeIndicatorsThreshold) {
         return cumulativeUserRepo.getFilteredCumulativeUsers(nodeIndicatorsThreshold)
-                .parallelStream().collect(toMap(CumulativeUser::getName, Function.identity()));
+                .stream().collect(toMap(CumulativeUser::getName, Function.identity()));
     }
 }
