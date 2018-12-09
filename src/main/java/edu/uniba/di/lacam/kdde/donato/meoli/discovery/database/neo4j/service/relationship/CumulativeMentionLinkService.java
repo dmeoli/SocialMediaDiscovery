@@ -3,6 +3,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.service.re
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node.CumulativeUser;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeMentionLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.relationship.ICumulativeMentionLinkRepository;
+import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArray;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.MentionLink;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,8 @@ public class CumulativeMentionLinkService extends CumulativeLinkService<Cumulati
                 cumulativeMentionLink.get().incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber);
                 cumulativeLinkRepo.save(cumulativeMentionLink.get());
             } else {
-                int[] cumulativeTemporalSubGraphsCounter = new int[getCumulativeGraphCounterArraySize()];
-                cumulativeTemporalSubGraphsCounter[temporalSubGraphNumber] = 1;
+                SparseArray cumulativeTemporalSubGraphsCounter = new SparseArray(getCumulativeTemporalSubGraphsCounterArraySize());
+                cumulativeTemporalSubGraphsCounter.add(temporalSubGraphNumber, 1);
                 cumulativeLinkRepo.save(
                         new CumulativeMentionLink(cumulativeUserFrom, cumulativeUserTo, cumulativeTemporalSubGraphsCounter));
             }

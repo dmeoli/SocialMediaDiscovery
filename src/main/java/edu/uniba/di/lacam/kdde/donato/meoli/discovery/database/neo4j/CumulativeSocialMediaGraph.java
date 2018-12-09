@@ -77,12 +77,12 @@ public class CumulativeSocialMediaGraph {
     }
 
     public void setTemporalSubGraphNumber(int temporalSubGraphNumber) {
-        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkService ->
+        cumulativeLinkServices.forEach(cumulativeLinkService ->
                 cumulativeLinkService.setTemporalSubGraphNumber(temporalSubGraphNumber));
     }
 
     public void setCumulativeTemporalGraphNumber(int cumulativeTemporalGraphNumber) {
-        cumulativeLinkServices.parallelStream().forEach(cumulativeLinkService ->
+        cumulativeLinkServices.forEach(cumulativeLinkService ->
                 cumulativeLinkService.setCumulativeTemporalGraphNumber(cumulativeTemporalGraphNumber));
     }
 

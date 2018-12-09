@@ -5,7 +5,6 @@ import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.util.SocialMediaDiscoveryConfiguration;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 public abstract class CumulativeLinkService<T extends CumulativeLink> {
@@ -24,9 +23,9 @@ public abstract class CumulativeLinkService<T extends CumulativeLink> {
     public abstract void cumulateLinks(Collection<? extends Link> temporalSubGraph);
 
     public void normalizeCumulativeLinks() {
+        int newSize = getCumulativeTemporalSubGraphsCounterArraySize();
         cumulativeLinkRepo.findAll().forEach(cumulativeLink -> {
-            cumulativeLink.setCumulativeTemporalSubGraphsCounter(Arrays.copyOf(
-                    cumulativeLink.getCumulativeTemporalSubGraphsCounter(), getCumulativeGraphCounterArraySize()));
+            cumulativeLink.setCumulativeTemporalSubGraphsCounterSize(newSize);
             cumulativeLinkRepo.save(cumulativeLink);
         });
     }
@@ -39,7 +38,7 @@ public abstract class CumulativeLinkService<T extends CumulativeLink> {
         this.temporalSubGraphNumber = temporalSubGraphNumber;
     }
 
-    int getCumulativeGraphCounterArraySize() {
+    int getCumulativeTemporalSubGraphsCounterArraySize() {
         return (SocialMediaDiscoveryConfiguration.getInstance().getCumulativeTemporalGraphMinutes() /
                 SocialMediaDiscoveryConfiguration.getInstance().getTemporalSubGraphsMinutes()) * cumulativeTemporalGraphNumber;
     }

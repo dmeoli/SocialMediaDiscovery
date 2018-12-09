@@ -1,6 +1,7 @@
 package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship;
 
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node.CumulativeUser;
+import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArray;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 
 import static edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeLexicalSimilarityLink.CUMULATIVE_LEXICAL_SIMILARITY_LINK_LABEL;
@@ -13,7 +14,7 @@ public class CumulativeLexicalSimilarityLink extends CumulativeLink {
     public CumulativeLexicalSimilarityLink() { }
 
     public CumulativeLexicalSimilarityLink(CumulativeUser cumulativeUserFrom, CumulativeUser cumulativeUserTo,
-                                           int[] cumulativeTemporalSubGraphsCounter) {
+                                           SparseArray cumulativeTemporalSubGraphsCounter) {
         super(cumulativeUserFrom, cumulativeUserTo, cumulativeTemporalSubGraphsCounter);
     }
 

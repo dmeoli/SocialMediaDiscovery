@@ -3,6 +3,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.service.re
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node.CumulativeUser;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeEmotionalLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.relationship.ICumulativeEmotionalLinkRepository;
+import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArray;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.content_based.EmotionalLink;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,8 @@ public class CumulativeEmotionalLinkService extends CumulativeLinkService<Cumula
                 cumulativeEmotionalSimilarityLink.get().incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber);
                 cumulativeLinkRepo.save(cumulativeEmotionalSimilarityLink.get());
             } else {
-                int[] cumulativeTemporalSubGraphsCounter = new int[getCumulativeGraphCounterArraySize()];
-                cumulativeTemporalSubGraphsCounter[temporalSubGraphNumber] = 1;
+                SparseArray cumulativeTemporalSubGraphsCounter = new SparseArray(getCumulativeTemporalSubGraphsCounterArraySize());
+                cumulativeTemporalSubGraphsCounter.add(temporalSubGraphNumber, 1);
                 cumulativeLinkRepo.save(
                         new CumulativeEmotionalLink(cumulativeUserFrom, cumulativeUserTo, cumulativeTemporalSubGraphsCounter));
             }

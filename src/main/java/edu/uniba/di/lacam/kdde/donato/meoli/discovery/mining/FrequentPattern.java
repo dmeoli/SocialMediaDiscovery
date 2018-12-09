@@ -24,7 +24,7 @@ public class FrequentPattern {
         return relativeSupport;
     }
 
-    public ItemSet<LabeledEdge, Pair<Set<Integer>>> getPatterns() {
+    ItemSet<LabeledEdge, Pair<Set<Integer>>> getPatterns() {
         return patterns;
     }
 

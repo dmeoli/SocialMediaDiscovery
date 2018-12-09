@@ -1,11 +1,10 @@
 package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship;
 
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node.CumulativeUser;
+import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArray;
+import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArrayConverter;
 import org.neo4j.ogm.annotation.*;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous.ContinuousContentBasedFeatureExtraction.MAX_SCORE;
-import static edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous.ContinuousContentBasedFeatureExtraction.MIN_SCORE;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 @RelationshipEntity
 public abstract class CumulativeLink {
@@ -19,18 +18,19 @@ public abstract class CumulativeLink {
     @EndNode
     private CumulativeUser cumulativeUserTo;
 
-    private int[] cumulativeTemporalSubGraphsCounter;
+    @Convert(SparseArrayConverter.class)
+    private SparseArray cumulativeTemporalSubGraphsCounter;
 
     private double weight;
 
     CumulativeLink() { }
 
     CumulativeLink(CumulativeUser cumulativeUserFrom, CumulativeUser cumulativeUserTo,
-                   int[] cumulativeTemporalSubGraphsCounter) {
+                   SparseArray cumulativeTemporalSubGraphsCounter) {
         this.cumulativeUserFrom = cumulativeUserFrom;
         this.cumulativeUserTo = cumulativeUserTo;
         this.cumulativeTemporalSubGraphsCounter = cumulativeTemporalSubGraphsCounter;
-        weight = getWeightedAverage();
+        weight = cumulativeTemporalSubGraphsCounter.getWeightedAvg();
         addCumulativeLink();
     }
 
@@ -46,34 +46,23 @@ public abstract class CumulativeLink {
         return cumulativeUserTo;
     }
 
-    public void setCumulativeTemporalSubGraphsCounter(int[] cumulativeTemporalSubGraphsCounter) {
-        this.cumulativeTemporalSubGraphsCounter = cumulativeTemporalSubGraphsCounter;
-        weight = getWeightedAverage();
+    public void setCumulativeTemporalSubGraphsCounterSize(int size) {
+        cumulativeTemporalSubGraphsCounter.setSize(size);
+        weight = cumulativeTemporalSubGraphsCounter.getWeightedAvg();
     }
 
     public void incrementCumulativeTemporalSubGraphsCounter(int temporalSubGraphNumber) {
-        cumulativeTemporalSubGraphsCounter[temporalSubGraphNumber]++;
-        weight = getWeightedAverage();
+        cumulativeTemporalSubGraphsCounter.add(temporalSubGraphNumber,
+                cumulativeTemporalSubGraphsCounter.get(temporalSubGraphNumber) + 1);
+        weight = cumulativeTemporalSubGraphsCounter.getWeightedAvg();
     }
 
-    public int[] getCumulativeTemporalSubGraphsCounter() {
+    public SparseArray getCumulativeTemporalSubGraphsCounter() {
         return cumulativeTemporalSubGraphsCounter;
     }
 
     public double getWeight() {
         return weight;
-    }
-
-    private double getWeightedAverage() {
-        int values = 0;
-        int weights = 0;
-        for (int i = 0; i < cumulativeTemporalSubGraphsCounter.length; i++) {
-            values += cumulativeTemporalSubGraphsCounter[i] * (i + 1);
-            weights += (i + 1);
-        }
-        double weightedAverage = ((double) values / weights);
-        checkArgument(MIN_SCORE <= weightedAverage && weightedAverage <= MAX_SCORE);
-        return weightedAverage;
     }
 
     protected abstract void addCumulativeLink();

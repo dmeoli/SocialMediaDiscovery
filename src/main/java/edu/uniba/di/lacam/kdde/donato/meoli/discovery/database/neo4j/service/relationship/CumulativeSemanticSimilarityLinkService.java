@@ -3,6 +3,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.service.re
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node.CumulativeUser;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeSemanticSimilarityLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.relationship.ICumulativeSemanticSimilarityLinkRepository;
+import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArray;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.content_based.SemanticSimilarityLink;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,8 @@ public class CumulativeSemanticSimilarityLinkService extends CumulativeLinkServi
                 cumulativeSemanticSimilarityLink.get().incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber);
                 cumulativeLinkRepo.save(cumulativeSemanticSimilarityLink.get());
             } else {
-                int[] cumulativeTemporalSubGraphsCounter = new int[getCumulativeGraphCounterArraySize()];
-                cumulativeTemporalSubGraphsCounter[temporalSubGraphNumber] = 1;
+                SparseArray cumulativeTemporalSubGraphsCounter = new SparseArray(getCumulativeTemporalSubGraphsCounterArraySize());
+                cumulativeTemporalSubGraphsCounter.add(temporalSubGraphNumber, 1);
                 cumulativeLinkRepo.save(
                         new CumulativeSemanticSimilarityLink(cumulativeUserFrom, cumulativeUserTo, cumulativeTemporalSubGraphsCounter));
             }

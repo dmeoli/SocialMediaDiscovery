@@ -2,6 +2,7 @@ package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.nod
 
 import com.google.gson.annotations.Expose;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.*;
+import edu.uniba.di.lacam.kdde.donato.meoli.discovery.mining.FrequentPattern;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.node.User;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -56,7 +57,7 @@ public class CumulativeUser {
     private int louvainCommunityID;
 
     @Expose
-    private List<String> frequentPatterns = new ArrayList<>();
+    private List<FrequentPattern> frequentPatterns = new ArrayList<>();
 
     CumulativeUser() { }
 
@@ -140,7 +141,7 @@ public class CumulativeUser {
         return louvainCommunityID;
     }
 
-    public List<String> getFrequentPatterns() {
+    public List<FrequentPattern> getFrequentPatterns() {
         return frequentPatterns;
     }
 
