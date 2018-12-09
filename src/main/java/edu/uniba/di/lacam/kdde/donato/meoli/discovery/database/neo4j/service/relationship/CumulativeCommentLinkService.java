@@ -28,7 +28,8 @@ public class CumulativeCommentLinkService extends CumulativeLinkService<Cumulati
             CumulativeUser cumulativeUserFrom = new CumulativeUser(link.getUserFrom());
             CumulativeUser cumulativeUserTo = new CumulativeUser(link.getUserTo());
             Optional<CumulativeCommentLink> cumulativeCommentLink =
-                    cumulativeLinkRepo.findByCumulativeUserFromAndCumulativeUserTo(cumulativeUserFrom, cumulativeUserTo);
+                    cumulativeLinkRepo.findByCumulativeUserFromNameAndCumulativeUserToName(cumulativeUserFrom.getName(),
+                            cumulativeUserTo.getName());
             if (cumulativeCommentLink.isPresent()) {
                 cumulativeCommentLink.get().incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber);
                 cumulativeLinkRepo.save(cumulativeCommentLink.get());

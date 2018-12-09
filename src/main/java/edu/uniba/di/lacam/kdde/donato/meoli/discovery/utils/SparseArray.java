@@ -4,10 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous.ContinuousContentBasedFeatureExtraction.MAX_SCORE;
-import static edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.continuous.ContinuousContentBasedFeatureExtraction.MIN_SCORE;
-
 public class SparseArray {
 
     private int size;
@@ -32,9 +28,7 @@ public class SparseArray {
 
     public double getWeightedAvg() {
         int values = indexToValue.entrySet().stream().mapToInt(entry -> entry.getKey() * entry.getValue()).sum();
-        double weightedAvg = ((double) values / gaussSum());
-        checkArgument(MIN_SCORE <= weightedAvg && weightedAvg <= MAX_SCORE);
-        return weightedAvg;
+        return ((double) values / gaussSum());
     }
 
     private int gaussSum() {

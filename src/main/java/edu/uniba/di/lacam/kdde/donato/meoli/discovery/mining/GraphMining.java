@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -116,8 +115,7 @@ public class GraphMining {
         cumulativeUsers.values().removeIf(cumulativeUser -> cumulativeUser.getFrequentPatterns().isEmpty());
         LOGGER.info("Saving results of the Social Media Discovery from {} to {}",
                 cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc());
-        resultsDB.insertResult(new Result(cumulativeSocialMediaGraph.getEndUtc().toEpochSecond(ZoneOffset.UTC),
-                        new ArrayList<>(cumulativeUsers.values())),
+        resultsDB.insertResult(new Result(cumulativeSocialMediaGraph.getEndUtc(), new ArrayList<>(cumulativeUsers.values())),
                 cumulativeTemporalGraphMinutes, temporalSubGraphsMinutes, frequentPatternMinSupport);
         LOGGER.info("The results of the Social Media Discovery from {} to {} has been saved",
                 cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc());

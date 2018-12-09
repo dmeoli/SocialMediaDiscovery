@@ -28,7 +28,8 @@ public class CumulativeEmotionalLinkService extends CumulativeLinkService<Cumula
             CumulativeUser cumulativeUserFrom = new CumulativeUser(link.getUserFrom());
             CumulativeUser cumulativeUserTo = new CumulativeUser(link.getUserTo());
             Optional<CumulativeEmotionalLink> cumulativeEmotionalSimilarityLink =
-                    cumulativeLinkRepo.findByCumulativeUserFromAndCumulativeUserTo(cumulativeUserFrom, cumulativeUserTo);
+                    cumulativeLinkRepo.findByCumulativeUserFromNameAndCumulativeUserToName(cumulativeUserFrom.getName(),
+                            cumulativeUserTo.getName());
             if (cumulativeEmotionalSimilarityLink.isPresent()) {
                 cumulativeEmotionalSimilarityLink.get().incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber);
                 cumulativeLinkRepo.save(cumulativeEmotionalSimilarityLink.get());

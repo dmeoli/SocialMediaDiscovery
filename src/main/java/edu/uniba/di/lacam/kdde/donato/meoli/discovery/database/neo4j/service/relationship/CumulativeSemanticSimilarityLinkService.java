@@ -28,7 +28,8 @@ public class CumulativeSemanticSimilarityLinkService extends CumulativeLinkServi
             CumulativeUser cumulativeUserFrom = new CumulativeUser(link.getUserFrom());
             CumulativeUser cumulativeUserTo = new CumulativeUser(link.getUserTo());
             Optional<CumulativeSemanticSimilarityLink> cumulativeSemanticSimilarityLink =
-                    cumulativeLinkRepo.findByCumulativeUserFromAndCumulativeUserTo(cumulativeUserFrom, cumulativeUserTo);
+                    cumulativeLinkRepo.findByCumulativeUserFromNameAndCumulativeUserToName(cumulativeUserFrom.getName(),
+                            cumulativeUserTo.getName());
             if (cumulativeSemanticSimilarityLink.isPresent()) {
                 cumulativeSemanticSimilarityLink.get().incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber);
                 cumulativeLinkRepo.save(cumulativeSemanticSimilarityLink.get());

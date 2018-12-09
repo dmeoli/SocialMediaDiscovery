@@ -6,7 +6,7 @@ import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.nlp.feature.ContentBas
 public abstract class ContinuousContentBasedFeatureExtraction extends ContentBasedFeatureExtraction {
 
     public static final double MIN_SCORE = 0.0D;
-    public static final double MAX_SCORE = 1.0D;
+    static final double MAX_SCORE = 1.0D;
 
     TFIDFSimilarity tfidfCalculator;
 

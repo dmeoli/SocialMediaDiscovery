@@ -28,7 +28,8 @@ public class CumulativeMentionLinkService extends CumulativeLinkService<Cumulati
             CumulativeUser cumulativeUserFrom = new CumulativeUser(link.getUserFrom());
             CumulativeUser cumulativeUserTo = new CumulativeUser(link.getUserTo());
             Optional<CumulativeMentionLink> cumulativeMentionLink =
-                    cumulativeLinkRepo.findByCumulativeUserFromAndCumulativeUserTo(cumulativeUserFrom, cumulativeUserTo);
+                    cumulativeLinkRepo.findByCumulativeUserFromNameAndCumulativeUserToName(cumulativeUserFrom.getName(),
+                            cumulativeUserTo.getName());
             if (cumulativeMentionLink.isPresent()) {
                 cumulativeMentionLink.get().incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber);
                 cumulativeLinkRepo.save(cumulativeMentionLink.get());
