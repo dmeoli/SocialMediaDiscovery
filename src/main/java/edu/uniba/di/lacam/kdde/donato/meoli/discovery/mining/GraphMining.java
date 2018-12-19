@@ -72,7 +72,7 @@ public class GraphMining {
         try {
             while (!endUtc.isAfter(lastUtc)) {
                 while (firstUtc.isBefore(endUtc) && !firstUtc.plusMinutes(temporalSubGraphsMinutes).isAfter(endUtc)) {
-                    Collection<Link> temporalSubGraphs = socialMediaGraph.getTemporalSubGraphs(firstUtc,
+                    List<Link> temporalSubGraphs = socialMediaGraph.getTemporalSubGraphs(firstUtc,
                             firstUtc.plusMinutes(temporalSubGraphsMinutes));
                     firstUtc = firstUtc.plusMinutes(temporalSubGraphsMinutes);
                     cumulativeSocialMediaGraph.cumulateTemporalSubGraphs(temporalSubGraphs);
@@ -108,7 +108,7 @@ public class GraphMining {
                     .filter(frequentPattern -> frequentPattern.getPatterns().getLength() >= FREQUENT_PATTERN_THRESHOLD)
                     .filter(frequentPattern -> cumulativeUsers.containsKey(frequentPattern.getPatterns().getSuffix().getStartNode()))
                     .forEach(frequentPattern -> cumulativeUsers.get(frequentPattern.getPatterns().getSuffix().getStartNode())
-                            .getFrequentPatterns().add(frequentPattern));
+                            .getFrequentPatterns().add(frequentPattern.toString()));
         } catch (TransactionException e) {
             e.printStackTrace();
         }

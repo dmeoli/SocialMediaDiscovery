@@ -26,7 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class SocialMediaGraph {
@@ -69,11 +73,15 @@ public class SocialMediaGraph {
         LOGGER.info("The creation of the {} graph of {}/{} is finished", DATASET, MONTH, YEAR);
     }
 
-    public Collection<Link> getTemporalSubGraphs(LocalDateTime startUtc, LocalDateTime endUtc) {
-        List<Link> temporalSubGraphs = new ArrayList<>();
-        linkRepos.parallelStream().map(linkRepo ->
-                linkRepo.findByUtcGreaterThanEqualAndUtcLessThan(startUtc, endUtc)).forEach(temporalSubGraphs::addAll);
-        return temporalSubGraphs;
+    public List<Link> getTemporalSubGraphs(LocalDateTime startUtc, LocalDateTime endUtc) {
+        return linkRepos.parallelStream().flatMap(linkRepo -> {
+            try {
+                return linkRepo.findByUtcGreaterThanEqualAndUtcLessThan(startUtc, endUtc).get().stream();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                return Stream.empty();
+            }
+        }).collect(Collectors.toList());
     }
 
     public LocalDateTime getFirstUtc() {

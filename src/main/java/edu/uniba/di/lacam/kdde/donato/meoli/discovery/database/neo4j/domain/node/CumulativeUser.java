@@ -2,13 +2,15 @@ package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.nod
 
 import com.google.gson.annotations.Expose;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.*;
-import edu.uniba.di.lacam.kdde.donato.meoli.discovery.mining.FrequentPattern;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.node.User;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeCommentLink.CUMULATIVE_COMMENT_LINK_LABEL;
 import static edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeEmotionalLink.CUMULATIVE_EMOTION_LINK_LABEL;
@@ -57,7 +59,7 @@ public class CumulativeUser {
     private int louvainCommunityID;
 
     @Expose
-    private List<FrequentPattern> frequentPatterns = new ArrayList<>();
+    private List<String> frequentPatterns = new ArrayList<>();
 
     CumulativeUser() { }
 
@@ -141,7 +143,7 @@ public class CumulativeUser {
         return louvainCommunityID;
     }
 
-    public List<FrequentPattern> getFrequentPatterns() {
+    public List<String> getFrequentPatterns() {
         return frequentPatterns;
     }
 

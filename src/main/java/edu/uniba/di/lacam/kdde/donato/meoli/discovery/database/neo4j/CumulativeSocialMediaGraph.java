@@ -121,6 +121,6 @@ public class CumulativeSocialMediaGraph {
 
     public Map<String, CumulativeUser> getFilteredCumulativeUsers(int nodeIndicatorsThreshold) {
         return cumulativeUserRepo.getFilteredCumulativeUsers(nodeIndicatorsThreshold)
-                .stream().collect(toMap(CumulativeUser::getName, Function.identity()));
+                .parallelStream().collect(toMap(CumulativeUser::getName, Function.identity()));
     }
 }

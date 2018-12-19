@@ -6,11 +6,13 @@ import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArray;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.CommentLink;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CumulativeCommentLinkService extends CumulativeLinkService<CumulativeCommentLink> {
@@ -24,21 +26,19 @@ public class CumulativeCommentLinkService extends CumulativeLinkService<Cumulati
 
     @Override
     public void cumulateLinks(Collection<? extends Link> temporalSubGraph) {
-        temporalSubGraph.stream().filter(link -> link.getClass().equals(CommentLink.class)).forEach(link -> {
-            CumulativeUser cumulativeUserFrom = new CumulativeUser(link.getUserFrom());
-            CumulativeUser cumulativeUserTo = new CumulativeUser(link.getUserTo());
-            Optional<CumulativeCommentLink> cumulativeCommentLink =
-                    cumulativeLinkRepo.findByCumulativeUserFromNameAndCumulativeUserToName(cumulativeUserFrom.getName(),
-                            cumulativeUserTo.getName());
-            if (cumulativeCommentLink.isPresent()) {
-                cumulativeCommentLink.get().incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber);
-                cumulativeLinkRepo.save(cumulativeCommentLink.get());
-            } else {
-                SparseArray cumulativeTemporalSubGraphsCounter = new SparseArray(getCumulativeTemporalSubGraphsCounterArraySize());
-                cumulativeTemporalSubGraphsCounter.add(temporalSubGraphNumber, 1);
-                cumulativeLinkRepo.save(
-                        new CumulativeCommentLink(cumulativeUserFrom, cumulativeUserTo, cumulativeTemporalSubGraphsCounter));
-            }
-        });
+        cumulativeLinkRepo.saveAll(temporalSubGraph.parallelStream().filter(link -> link.getClass().equals(CommentLink.class))
+                .collect(Collectors.groupingByConcurrent(link ->
+                        Pair.of(new CumulativeUser(link.getUserFrom()), new CumulativeUser(link.getUserTo()))))
+                .entrySet().parallelStream().map(entry -> {
+                    Optional<CumulativeCommentLink> optCumulativeCommentLink;
+                    CumulativeCommentLink cumulativeCommentLink = (optCumulativeCommentLink = cumulativeLinkRepo.
+                            findByCumulativeUserFromNameAndCumulativeUserToName(entry.getKey().getLeft().getName(),
+                                    entry.getKey().getRight().getName())).isPresent() ? optCumulativeCommentLink.get() :
+                            new CumulativeCommentLink(entry.getKey().getLeft(), entry.getKey().getRight(),
+                                    new SparseArray(getCumulativeTemporalSubGraphsCounterArraySize()));
+                    entry.getValue().forEach(link ->
+                            cumulativeCommentLink.incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber));
+                    return cumulativeCommentLink;
+                }).collect(Collectors.toList()));
     }
 }

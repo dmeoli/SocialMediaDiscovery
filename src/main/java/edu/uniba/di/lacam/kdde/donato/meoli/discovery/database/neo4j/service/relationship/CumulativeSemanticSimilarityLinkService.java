@@ -6,11 +6,13 @@ import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.repository.
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArray;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.content_based.SemanticSimilarityLink;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CumulativeSemanticSimilarityLinkService extends CumulativeLinkService<CumulativeSemanticSimilarityLink> {
@@ -19,26 +21,24 @@ public class CumulativeSemanticSimilarityLinkService extends CumulativeLinkServi
 
     @Autowired
     public CumulativeSemanticSimilarityLinkService(ICumulativeSemanticSimilarityLinkRepository cumulativeSemanticSimilarityLinkRepo) {
-       super(cumulativeSemanticSimilarityLinkRepo);
+        super(cumulativeSemanticSimilarityLinkRepo);
     }
 
     @Override
     public void cumulateLinks(Collection<? extends Link> temporalSubGraph) {
-        temporalSubGraph.stream().filter(link -> link.getClass().equals(SemanticSimilarityLink.class)).forEach(link -> {
-            CumulativeUser cumulativeUserFrom = new CumulativeUser(link.getUserFrom());
-            CumulativeUser cumulativeUserTo = new CumulativeUser(link.getUserTo());
-            Optional<CumulativeSemanticSimilarityLink> cumulativeSemanticSimilarityLink =
-                    cumulativeLinkRepo.findByCumulativeUserFromNameAndCumulativeUserToName(cumulativeUserFrom.getName(),
-                            cumulativeUserTo.getName());
-            if (cumulativeSemanticSimilarityLink.isPresent()) {
-                cumulativeSemanticSimilarityLink.get().incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber);
-                cumulativeLinkRepo.save(cumulativeSemanticSimilarityLink.get());
-            } else {
-                SparseArray cumulativeTemporalSubGraphsCounter = new SparseArray(getCumulativeTemporalSubGraphsCounterArraySize());
-                cumulativeTemporalSubGraphsCounter.add(temporalSubGraphNumber, 1);
-                cumulativeLinkRepo.save(
-                        new CumulativeSemanticSimilarityLink(cumulativeUserFrom, cumulativeUserTo, cumulativeTemporalSubGraphsCounter));
-            }
-        });
+        cumulativeLinkRepo.saveAll(temporalSubGraph.parallelStream().filter(link -> link.getClass().equals(SemanticSimilarityLink.class))
+                .collect(Collectors.groupingByConcurrent(link ->
+                        Pair.of(new CumulativeUser(link.getUserFrom()), new CumulativeUser(link.getUserTo()))))
+                .entrySet().parallelStream().map(entry -> {
+                    Optional<CumulativeSemanticSimilarityLink> optCumulativeSemanticSimilarityLink;
+                    CumulativeSemanticSimilarityLink cumulativeSemanticSimilarityLink = (optCumulativeSemanticSimilarityLink =
+                            cumulativeLinkRepo.findByCumulativeUserFromNameAndCumulativeUserToName(entry.getKey().getLeft().getName(),
+                                    entry.getKey().getRight().getName())).isPresent() ? optCumulativeSemanticSimilarityLink.get() :
+                            new CumulativeSemanticSimilarityLink(entry.getKey().getLeft(), entry.getKey().getRight(),
+                                    new SparseArray(getCumulativeTemporalSubGraphsCounterArraySize()));
+                    entry.getValue().forEach(link ->
+                            cumulativeSemanticSimilarityLink.incrementCumulativeTemporalSubGraphsCounter(temporalSubGraphNumber));
+                    return cumulativeSemanticSimilarityLink;
+                }).collect(Collectors.toList()));
     }
 }

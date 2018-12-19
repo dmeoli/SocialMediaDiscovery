@@ -9,17 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.time.Month;
 
 @SpringBootApplication
+@EnableAsync
 public class SocialMediaDiscoveryApplication implements CommandLineRunner {
 
     private static final int YEAR = 2017;
     private static final int MONTH = Month.NOVEMBER.getValue();
 
-    private static final int CUMULATIVE_TEMPORAL_GRAPH_MINUTES = 60 * 24;
-    private static final int TEMPORAL_SUB_GRAPHS_MINUTES = 60 * 2;
+    private static final int CUMULATIVE_TEMPORAL_GRAPH_MINUTES = 60 * 24 * 3;
+    private static final int TEMPORAL_SUB_GRAPHS_MINUTES = 60 * 2 * 3;
 
     private static final float MIN_SUPPORT = 0.1F;
 

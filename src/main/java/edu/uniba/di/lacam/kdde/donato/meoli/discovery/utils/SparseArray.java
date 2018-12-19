@@ -1,7 +1,7 @@
 package edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
 public class SparseArray {
@@ -11,7 +11,7 @@ public class SparseArray {
 
     public SparseArray(int size) {
         this.size = size;
-        indexToValue = new HashMap<>();
+        indexToValue = new ConcurrentHashMap<>();
     }
 
     public void add(int index, int value) {
