@@ -1,7 +1,7 @@
 package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship;
 
-import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node.CumulativeUser;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArray;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.node.User;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 
 import static edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.relationship.CumulativeCommentLink.CUMULATIVE_COMMENT_LINK_LABEL;
@@ -13,9 +13,8 @@ public class CumulativeCommentLink extends CumulativeLink {
 
     public CumulativeCommentLink() { }
 
-    public CumulativeCommentLink(CumulativeUser cumulativeUserFrom, CumulativeUser cumulativeUserTo,
-                                 SparseArray cumulativeTemporalSubGraphsCounter) {
-        super(cumulativeUserFrom, cumulativeUserTo, cumulativeTemporalSubGraphsCounter);
+    public CumulativeCommentLink(User userFrom, User userTo, SparseArray cumulativeTemporalSubGraphsCounter) {
+        super(userFrom, userTo, cumulativeTemporalSubGraphsCounter);
     }
 
     @Override

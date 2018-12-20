@@ -14,6 +14,11 @@ public class SparseArray {
         indexToValue = new ConcurrentHashMap<>();
     }
 
+    public SparseArray(int size, int index, int value) {
+       this(size);
+       this.add(index, value);
+    }
+
     public void add(int index, int value) {
         indexToValue.put(index, value);
     }

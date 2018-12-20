@@ -3,13 +3,15 @@ package edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.rel
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.domain.node.CumulativeUser;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArray;
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.utils.SparseArrayConverter;
+import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.node.User;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 @RelationshipEntity
 public abstract class CumulativeLink {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     @StartNode
@@ -25,10 +27,9 @@ public abstract class CumulativeLink {
 
     CumulativeLink() { }
 
-    CumulativeLink(CumulativeUser cumulativeUserFrom, CumulativeUser cumulativeUserTo,
-                   SparseArray cumulativeTemporalSubGraphsCounter) {
-        this.cumulativeUserFrom = cumulativeUserFrom;
-        this.cumulativeUserTo = cumulativeUserTo;
+    CumulativeLink(User userFrom, User userTo, SparseArray cumulativeTemporalSubGraphsCounter) {
+        this.cumulativeUserFrom = new CumulativeUser(userFrom);
+        this.cumulativeUserTo = new CumulativeUser(userTo);
         this.cumulativeTemporalSubGraphsCounter = cumulativeTemporalSubGraphsCounter;
         weight = cumulativeTemporalSubGraphsCounter.getWeightedAvg();
         addCumulativeLink();
@@ -51,9 +52,9 @@ public abstract class CumulativeLink {
         weight = cumulativeTemporalSubGraphsCounter.getWeightedAvg();
     }
 
-    public void incrementCumulativeTemporalSubGraphsCounter(int temporalSubGraphNumber) {
+    public void updateCumulativeTemporalSubGraphsCounter(int temporalSubGraphNumber, int value) {
         cumulativeTemporalSubGraphsCounter.add(temporalSubGraphNumber,
-                cumulativeTemporalSubGraphsCounter.get(temporalSubGraphNumber) + 1);
+                cumulativeTemporalSubGraphsCounter.get(temporalSubGraphNumber) + value);
         weight = cumulativeTemporalSubGraphsCounter.getWeightedAvg();
     }
 
