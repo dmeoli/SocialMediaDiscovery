@@ -20,8 +20,8 @@ import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.service
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.service.relationship.content_based.LexicalSimilarityLinkService;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.service.relationship.content_based.SemanticSimilarityLinkService;
 import edu.uniba.di.lacam.kdde.donato.meoli.util.SocialMediaDiscoveryConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 @Component
 public class SocialMediaGraph {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SocialMediaGraph.class);
+    private static final Logger LOGGER = LogManager.getLogger(SocialMediaGraph.class);
 
     private static final String DATASET = Character.toUpperCase(
             SocialMediaDiscoveryConfiguration.getInstance().getDataset().getName().charAt(0)) +

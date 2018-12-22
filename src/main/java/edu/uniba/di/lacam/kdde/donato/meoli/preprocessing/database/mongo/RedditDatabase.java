@@ -5,9 +5,9 @@ import com.mongodb.client.model.IndexOptions;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Comment;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Discussion;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.mongo.domain.Post;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Component;
@@ -19,13 +19,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.mongodb.client.model.Aggregates.*;
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.out;
 import static com.mongodb.client.model.Filters.*;
 
 @Component
 public class RedditDatabase extends SocialMediaDatabase {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RedditDatabase.class);
+    private static final Logger LOGGER = LogManager.getLogger(RedditDatabase.class);
 
     private static final String SUBMISSIONS_COLLECTION = "submissions";
     private static final String COMMENTS_COLLECTION = "comments";

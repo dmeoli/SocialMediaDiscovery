@@ -7,8 +7,8 @@ import edu.uniba.di.lacam.kdde.donato.meoli.discovery.database.neo4j.service.rel
 import edu.uniba.di.lacam.kdde.donato.meoli.discovery.mining.GraphMining;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.util.SocialMediaDiscoveryConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toMap;
 @Component
 public class CumulativeSocialMediaGraph {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GraphMining.class);
+    private static final Logger LOGGER = LogManager.getLogger(GraphMining.class);
 
     private LocalDateTime startUtc;
     private LocalDateTime endUtc;

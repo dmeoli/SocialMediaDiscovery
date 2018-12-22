@@ -19,7 +19,7 @@ final public class SocialMediaDiscoveryConfiguration {
     private static final SocialMediaDiscoveryConfiguration SOCIAL_MEDIA_DISCOVERY_CONFIGURATION =
             new SocialMediaDiscoveryConfiguration();
 
-    public static SocialMediaDiscoveryConfiguration getInstance(){
+    public static SocialMediaDiscoveryConfiguration getInstance() {
         return SOCIAL_MEDIA_DISCOVERY_CONFIGURATION;
     }
 
@@ -54,7 +54,6 @@ final public class SocialMediaDiscoveryConfiguration {
     public Dataset getDataset() {
         return dataset;
     }
-
 
     public void setYear(int year) {
         this.year = year;
