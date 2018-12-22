@@ -67,7 +67,7 @@ public class GraphMining {
 
     public void executeTemporalSocialMediaAnalysis() {
         long t = System.currentTimeMillis();
-        LOGGER.info("Starting Temporal Social Media Analysis on the {} graph of {}/{} is finished", DATASET, YEAR, MONTH);
+        LOGGER.info("Starting Temporal Social Media Analysis on the {} graph of {}/{}", DATASET, YEAR, MONTH);
         checkArgument(temporalSubGraphsMinutes < cumulativeTemporalGraphMinutes);
         cumulativeSocialMediaGraph.deleteCumulativeSocialMediaGraph();
         LocalDateTime firstUtc = socialMediaGraph.getFirstUtc();
@@ -127,9 +127,8 @@ public class GraphMining {
         } catch (TransactionException e) {
             e.printStackTrace();
         }
-        LOGGER.info("The Frequent Pattern Discovery on Temporal Sub Graphs from {} to {} has been finished in {} sec.",
-                cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc(),
-                (System.currentTimeMillis() - t) / 1000L);
+        LOGGER.info("The Frequent Pattern Discovery on Temporal Sub Graphs from {} to {} has been finished in {} msec.",
+                cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc(), System.currentTimeMillis() - t);
         cumulativeUsers.values().removeIf(cumulativeUser -> cumulativeUser.getFrequentPatterns().isEmpty());
         LOGGER.info("Saving results of the Social Media Discovery from {} to {}",
                 cumulativeSocialMediaGraph.getStartUtc(), cumulativeSocialMediaGraph.getEndUtc());

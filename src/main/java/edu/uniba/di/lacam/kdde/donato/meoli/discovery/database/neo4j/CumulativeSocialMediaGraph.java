@@ -8,10 +8,9 @@ import edu.uniba.di.lacam.kdde.donato.meoli.discovery.mining.GraphMining;
 import edu.uniba.di.lacam.kdde.donato.meoli.preprocessing.database.neo4j.domain.relationship.Link;
 import edu.uniba.di.lacam.kdde.donato.meoli.util.SocialMediaDiscoveryConfiguration;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import org.apache.logging.log4j.Logger;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
@@ -103,12 +102,12 @@ public class CumulativeSocialMediaGraph {
                 startUtc, endUtc);
         t = cumulativeUserRepo.computePageRank();
         LOGGER.info("The computation of the Page Rank on the Cumulative Temporal Graph from {} to {} has been " +
-                "finished in {} sec.", startUtc, endUtc, t);
+                "finished in {} msec.", startUtc, endUtc, t);
         LOGGER.info("Starting the computation of the Betweenness Centrality on the Cumulative Temporal Graph from {} " +
                 "to {}", startUtc, endUtc);
         t = cumulativeUserRepo.computeBetweennessCentrality();
         LOGGER.info("The computation of the Betweenness Centrality on the Cumulative Temporal Graph from {} to {} has " +
-                "been finished in {} sec.", startUtc, endUtc, t);
+                "been finished in {} msec.", startUtc, endUtc, t);
     }
 
     public void computeCommunityDetection() {
@@ -116,7 +115,7 @@ public class CumulativeSocialMediaGraph {
                 "{} to {}", startUtc, endUtc);
         long t = cumulativeUserRepo.computeLouvain();
         LOGGER.info("The computation of the Louvain Community Detection on the Cumulative Temporal Graph from {} to {} " +
-                "has been finished in {} sec.", startUtc, endUtc, t);
+                "has been finished in {} msec.", startUtc, endUtc, t);
     }
 
     public Map<String, CumulativeUser> getFilteredCumulativeUsers(int nodeIndicatorsThreshold) {
