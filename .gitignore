@@ -4,8 +4,4 @@
 target
 
 # LaTeX
-tex/*.out
-tex/*.aux
-tex/*.log
-tex/*.gz
-tex/*.toc
+tex
