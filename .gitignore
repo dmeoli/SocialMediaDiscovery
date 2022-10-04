@@ -2,6 +2,3 @@
 .idea
 *.iml
 target
-
-# LaTeX
-tex
