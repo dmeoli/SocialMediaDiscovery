@@ -3,5 +3,9 @@
 *.iml
 target
 
-### LaTeX ###
-latex
+# LaTeX
+tex/*.out
+tex/*.aux
+tex/*.log
+tex/*.gz
+tex/*.toc

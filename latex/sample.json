@@ -1,0 +1,34 @@
+{ 
+  "id":"t5_2s4f7",
+  "name":"granturismo",
+  "submissions": [
+    { 
+      "id":"7a3w3p",
+      "redditor":"noatakzak",
+      "UTC":"Nov 1, 2017, 3:25:57 PM",
+      "mentions":[ ],
+      "selftextPOSTags":[{"word":"Forgot","lemma":"forget","tag":"VBD"},{"word":"issues","lemma":"issue","tag":"NNS"}, ecc.],
+      "comments": [
+        { 
+          "id":"dp6v33n",
+          "redditor":"substrate80",
+          "UTC":"Nov 1, 2017, 3:37:43 PM",
+          "mentions":[ ],
+          "bodyPOSTags":[{"word":"had","lemma":"have","tag":"VBD"},{"word":"messed","lemma":"mess","tag":"VBN"}, ecc.],
+          "replies": [
+            { 
+              "id":"7a3w3p",
+              "redditor":"noatakzak",
+              "UTC":"Nov 1, 2017, 3:42:50 PM",
+              "mentions":["substrate80"],
+              "bodyPOSTags":[{"word":"making","lemma":"make","tag":"VBG"},{"word":"music","lemma":"music","tag":"NN"}, ecc.],
+              "replies": [ ecc. ]
+            }        
+          ]
+        }
+      ],
+      "lexicalSimilarities":[{"id":"dp694m4","authorFrom":"bloodhawk713","authorTo":"-Kaneki-","UTC":"Nov 1, 2017 3:31:50 AM","score":0.005865229270958179}, ecc.],
+      "semanticSimilarities":[{"id":"dp694m4","authorFrom":"bloodhawk713","authorTo":"-Kaneki-","UTC":"Nov 1, 2017 3:31:50 AM","score":0.03389350994627763}, ecc.]
+    }
+  ]
+}

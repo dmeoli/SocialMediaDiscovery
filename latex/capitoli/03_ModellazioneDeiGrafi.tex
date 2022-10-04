@@ -1,0 +1,54 @@
+\chapter{Modellazione dei Grafi}
+
+Le comunit{\`a} analizzate prevedono relazioni tra gli utenti che sono supportate dagli strumenti tecnologici in uso, piuttosto che essere identificate a priori per via delle relazioni sociali che intercorrono tra questi, come nel caso di ``follow" o ``amicizia". 
+
+La struttura dati che si presta meglio alla rappresentazione di un dominio applicativo di questo tipo {\`e} sicuramente un grafo in cui i nodi rappresentano gli utenti e gli archi corrispondono alle relazioni che intercorrono tra di loro.
+
+La fase di costruzione del grafo come astrazione della comunit{\`a} da analizzare nel prossimo step prevede la rappresentazione di ben 5 diverse tipologie di relazioni possibili che possono intercorrere tra gli utenti. Le prime 3 sono basate su delle banali relazioni sociali immediatamente disponibili, in quanto deducibili dalla struttura multi-threading implementata dalla maggior parte delle tecnologie che supportano le comunit{\`a} sociali. Le altre 2, invece, sono basate sul contenuto dei messaggi che gli utenti hanno scambiato all'interno di uno stesso forum di discussione, ossia sulle similarit{\`a} lessicali e semantiche calcolate come descritto nel capitolo precedente.
+
+Il risultato sar{\`a} quindi un grafo orientato, etichettato e pesato con gli score di similarit{\`a} per gli archi che rappresentano tale tipologia di relazione.
+
+% \begin{figure}\centering
+% \includegraphics[scale=0.25]{img/graph-all}
+% \caption{Porzione del grafo rappresentante tutte le possibili tipologie di relazioni che possono presentarsi tra gli utenti.}
+% \end{figure}
+
+\subparagraph{COMMENT\_TO}
+{\`E} una delle relazioni pi{\`u} semplici che pu{\`o} intercorrere tra due nodi del grafo: un utente \( b \) commenta il post di un utente \( a \). 
+
+% \begin{figure}\centering
+% \includegraphics[scale=0.25]{img/graph-comment}
+% \caption{}
+% \end{figure}
+
+\subparagraph{REPLY\_TO} 
+Prevede la replica di un utente \( c \) al commento dell'utente \( b \) sul post dell'utente \( a \).
+
+% \begin{figure}\centering
+% \includegraphics[scale=0.25]{img/graph-reply}
+% \caption{}
+% \end{figure}
+
+\subparagraph{MENTION\_TO}
+Comporta la creazione di un link tra un utente \( s \) ed un utente \( m \) oggetto del menzionamento, anche se coinvolti in forum o thread di discussione diversi.
+
+% \begin{figure}\centering
+% \includegraphics[scale=0.25]{img/graph-mention}
+% \caption{}
+% \end{figure}
+
+\subparagraph{LEXICALLY\_SIMILAR\_TO}
+{\`E} dovuta alla similarit{\`a} lessicale tra post di due utenti coinvolti nella stessa discussione, la cui direzionalit{\`a} dell'arco {\`e} definita in base al timestamp.
+
+% \begin{figure}\centering
+% \includegraphics[scale=0.25]{img/graph-lexical}
+% \caption{}
+% \end{figure}
+
+\subparagraph{SEMANTICALLY\_SIMILAR\_TO}
+{\`E} dovuta alla similarit{\`a} semantica tra post di due utenti coinvolti nella stessa discussione, la cui direzionalit{\`a} dell'arco {\`e} decisa in base al timestamp.
+
+% \begin{figure}\centering
+% \includegraphics[scale=0.25]{img/graph-semantic}
+% \caption{}
+% \end{figure}

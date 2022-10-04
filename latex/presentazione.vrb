@@ -1,0 +1,24 @@
+\frametitle{\highlighttext[tomato1]{\textbf{\emph{Risultati Qualitativi (2)}}}}
+
+Redditor \url{"D2TournamentThreads"}, ultima time-window analizzata (29-30/11):
+
+\begin{lstlisting}[language=json]
+{
+  "name": "D2TournamentThreads",
+  "inDegree": 497,
+  "outDegree": 21,
+  "betweenness": 80639.51145093024,
+  "pageRank": 46.710466999999994,
+  "frequentSubgraphs": [
+    "{e(D2TournamentThreads, MENTION_TO, 1107888450),
+      e(D2TournamentThreads, MENTION_TO, 5695452105)}",
+    "{e(D2TournamentThreads, COMMENT_TO, 1107888450),
+      e(D2TournamentThreads, COMMENT_TO, 5874306284)}",
+    "{e(D2TournamentThreads, REPLY_TO, 1107888450),
+      e(D2TournamentThreads, REPLY_TO, 5695452105),
+      e(D2TournamentThreads, REPLY_TO, 5874306284)}"
+      . . .
+  ]
+}
+\end{lstlisting}
+
