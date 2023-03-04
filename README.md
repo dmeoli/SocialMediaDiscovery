@@ -1,4 +1,4 @@
-# Social Media Discovery [![Build Status](https://travis-ci.org/dmeoli/SocialMediaDiscovery.svg?branch=master)](https://travis-ci.org/dmeoli/SocialMediaDiscovery)
+# Social Media Discovery [![Build Status](https://api.travis-ci.com/dmeoli/SocialMediaDiscovery.svg?branch=master)](https://app.travis-ci.com/github/dmeoli/SocialMediaDiscovery)
 
 This code is an efficient implementation of the model proposed into my bachelor's thesis in 
 [Computer Science](https://www.uniba.it/ricerca/dipartimenti/informatica) @ [University of Bari "Aldo Moro"](https://www.uniba.it/) 
